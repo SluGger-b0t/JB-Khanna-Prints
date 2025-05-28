@@ -1,0 +1,356 @@
+.checkoutContainer {
+  min-height: 100vh;
+  padding: 2rem;
+  background-color: #f5f5f5;
+}
+
+.checkoutWrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 2rem;
+}
+
+.leftSection {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 2rem;
+}
+
+.formSection,
+.paymentSection {
+  margin-bottom: 2rem;
+}
+
+.formSection h2,
+.paymentSection h2 {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.formGroup label {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.formGroup input,
+.formGroup textarea {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.formGroup input:focus,
+.formGroup textarea:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.formGroup textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.paymentOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.paymentOption {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.paymentOption input[type='radio'] {
+  width: 18px;
+  height: 18px;
+}
+
+.rightSection {
+  position: sticky;
+  top: 2rem;
+  height: fit-content;
+}
+
+.orderSummary {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.orderSummary h2 {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+.summaryItem {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  color: #666;
+}
+
+.summaryTotal {
+  display: flex;
+  justify-content: space-between;
+  margin: 1.5rem 0;
+  padding-top: 1rem;
+  border-top: 1px solid #ddd;
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.checkoutButton {
+  width: 100%;
+  padding: 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.checkoutButton:hover {
+  background-color: #0056b3;
+}
+
+.cartItems {
+  margin: 1.5rem 0;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.cartItem {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.itemImage {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+.itemDetails {
+  flex: 1;
+}
+
+.itemName {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.25rem;
+}
+
+.itemPrice {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.25rem;
+}
+
+.itemQuantity {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+@media (max-width: 768px) {
+  .checkoutWrapper {
+    grid-template-columns: 1fr;
+  }
+
+  .rightSection {
+    position: static;
+  }
+
+  .checkoutContainer {
+    padding: 1rem;
+  }
+}
+
+.makePaymentButton {
+  width: 100%;
+  padding: 1rem;
+  background-color: #222;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 1.5rem;
+  transition: background 0.2s;
+}
+.makePaymentButton:hover {
+  background: #444;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(60, 60, 60, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.paymentModal {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.18);
+  padding: 2.5rem 2rem 2rem 2rem;
+  max-width: 420px;
+  width: 100%;
+  text-align: left;
+  position: relative;
+}
+
+.modalTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.modalSubtitle {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+.paymentOptionsModal {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.paymentOptionModal {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.2rem 1rem;
+  background: #fff;
+  cursor: pointer;
+  transition: border 0.2s, background 0.2s;
+}
+
+.paymentOptionModal:hover {
+  border-color: #b2dfdb;
+}
+
+.selectedPayment {
+  border-color: #7be7b2;
+  background: #d6ffe6;
+}
+
+.paymentIcon {
+  font-size: 2rem;
+  margin-right: 0.5rem;
+}
+
+.paymentLabel {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.paymentDesc {
+  font-size: 0.95rem;
+  color: #444;
+}
+
+.modalActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.confirmButton {
+  background: #222;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.7rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.confirmButton:hover {
+  background: #444;
+}
+
+.cancelButton {
+  background: #fff;
+  color: #222;
+  border: 1.5px solid #222;
+  border-radius: 6px;
+  padding: 0.7rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.cancelButton:hover {
+  background: #f7e0ab;
+  color: #2f4f4f;
+}
+
+.goBackButton {
+  background: #2f4f4f;
+  color: #f7e0ab;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+  margin-left: 0.2rem;
+  transition: background 0.2s, color 0.2s;
+}
+.goBackButton:hover {
+  background: #f7e0ab;
+  color: #2f4f4f;
+}
