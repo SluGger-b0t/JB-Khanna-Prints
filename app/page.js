@@ -90,12 +90,20 @@ const Home = () => {
             Discover our exquisite collection of canvas paintings, each piece
             thoughtfully curated to add charm and character to any space.
           </p>
-          <a
-            href="/product"
-            className="inline-flex items-center px-8 py-4 bg-[#2f4f4f] text-[#f7e0ab] rounded-lg hover:bg-[#f7e0ab] hover:text-[#2f4f4f] transition-colors text-lg font-medium"
-          >
-            View All Products
-          </a>
+          <div className="flex justify-center gap-4">
+            <a
+              href="/product"
+              className="inline-flex items-center px-8 py-4 bg-[#2f4f4f] text-[#f7e0ab] rounded-lg hover:bg-[#f7e0ab] hover:text-[#2f4f4f] transition-colors text-lg font-medium"
+            >
+              View All Products
+            </a>
+            <a
+              href="/career"
+              className="inline-flex items-center px-8 py-4 bg-[#2f4f4f] text-[#f7e0ab] rounded-lg hover:bg-[#f7e0ab] hover:text-[#2f4f4f] transition-colors text-lg font-medium"
+            >
+              Join Our Team
+            </a>
+          </div>
         </div>
       </section>
 

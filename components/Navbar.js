@@ -11,14 +11,14 @@ const Navbar = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="main-logo flex items-center">
-                <a href="index.html" className="block">
+                <a href="/" className="block">
                   <img
                     src="images/main-logo (2).png"
                     alt="logo"
                     className="h-12 w-auto"
                   />
                 </a>
-                <a href="index.html" className="block">
+                <a href="/" className="block">
                   <img
                     src="images/second-logo.png"
                     alt="logo"
@@ -32,7 +32,7 @@ const Navbar = () => {
               <ul className="flex space-x-8">
                 <li>
                   <a
-                    href="#header-wrap"
+                    href="/"
                     className="text-black hover:text-[#f7e0ab] transition-colors font-medium curvy-subheading"
                   >
                     Home
@@ -48,7 +48,7 @@ const Navbar = () => {
                 </li>
                 <li>
                   <a
-                    href="products.html"
+                    href="/product"
                     className="text-black hover:text-[#f7e0ab] transition-colors font-medium curvy-subheading"
                   >
                     Products
@@ -56,8 +56,16 @@ const Navbar = () => {
                 </li>
                 <li>
                   <a
-                    href="#subscribe"
+                    href="/career"
                     className="text-black hover:text-[#f7e0ab] transition-colors font-medium curvy-subheading"
+                  >
+                    Career
+                  </a>
+                </li>
+                  <li>
+                    <a
+                      href="#subscribe"
+                      className="text-black hover:text-[#f7e0ab] transition-colors font-medium curvy-subheading"
                   >
                     Contact Us
                   </a>
