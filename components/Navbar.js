@@ -1,6 +1,9 @@
-import React from 'react'
+"use client"
+import React, { useState } from 'react'
 
 const Navbar = () => {
+  const [menuOpen, setMenuOpen] = useState(false)
+
   return (
     <div
       id="header-wrap"
@@ -62,10 +65,10 @@ const Navbar = () => {
                     Career
                   </a>
                 </li>
-                  <li>
-                    <a
-                      href="#subscribe"
-                      className="text-black hover:text-[#f7e0ab] transition-colors font-medium curvy-subheading"
+                <li>
+                  <a
+                    href="#subscribe"
+                    className="text-black hover:text-[#f7e0ab] transition-colors font-medium curvy-subheading"
                   >
                     Contact Us
                   </a>
@@ -73,10 +76,80 @@ const Navbar = () => {
               </ul>
             </nav>
 
-            <div className="hamburger md:hidden cursor-pointer">
-              <span className="bar block w-6 h-0.5 bg-[#2f4f4f] my-1"></span>
-              <span className="bar block w-6 h-0.5 bg-[#2f4f4f] my-1"></span>
-              <span className="bar block w-6 h-0.5 bg-[#2f4f4f] my-1"></span>
+            {/* Mobile Menu */}
+            <div className="md:hidden">
+              <div
+                className="hamburger cursor-pointer"
+                onClick={() => setMenuOpen(!menuOpen)}
+              >
+                <span
+                  className={`bar block w-6 h-0.5 my-1 transition-all duration-300 bg-black ${
+                    menuOpen ? 'rotate-45 translate-y-2' : ''
+                  }`}
+                ></span>
+                <span
+                  className={`bar block w-6 h-0.5 my-1 transition-all duration-300 bg-black ${
+                    menuOpen ? 'opacity-0' : ''
+                  }`}
+                ></span>
+                <span
+                  className={`bar block w-6 h-0.5 my-1 transition-all duration-300 bg-black ${
+                    menuOpen ? '-rotate-45 -translate-y-2' : ''
+                  }`}
+                ></span>
+              </div>
+              {/* Mobile nav links */}
+              {menuOpen && (
+                <div className="absolute top-full left-0 w-full bg-[#2f4f4f] shadow-md z-50 animate-fade-in">
+                  <ul className="flex flex-col space-y-4 py-4 px-6">
+                    <li>
+                      <a
+                        href="/"
+                        className="text-black hover:text-[#f7e0ab] transition-colors font-medium curvy-subheading"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        Home
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="#about-us"
+                        className="text-black hover:text-[#f7e0ab] transition-colors font-medium curvy-subheading"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        About Us
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="/product"
+                        className="text-black hover:text-[#f7e0ab] transition-colors font-medium curvy-subheading"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        Products
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="/career"
+                        className="text-black hover:text-[#f7e0ab] transition-colors font-medium curvy-subheading"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        Career
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="#subscribe"
+                        className="text-black hover:text-[#f7e0ab] transition-colors font-medium curvy-subheading"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        Contact Us
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              )}
             </div>
           </div>
         </div>

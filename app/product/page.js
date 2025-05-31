@@ -98,7 +98,7 @@ const About = () => {
               <div className="tab-pane active" id="gift-boxes">
                 <div className="max-w-6xl mx-auto px-4">
                   {/* {/* Mobile Category Dropdown */}
-                  <div className="lg:hidden mb-6">
+                  <div className="lg:hidden mb-6 bg-white border border-gray-200 rounded-lg">
                     <select
                       id="category-select"
                       className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f7e0ab] text-[#2f4f4f]"
