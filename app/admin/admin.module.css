@@ -1,0 +1,548 @@
+.adminContainer {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  font-family: 'Inter', sans-serif; /* Changed to Inter for consistency */
+}
+
+.adminHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.headerControls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.filterContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filterSelect {
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  min-width: 120px; /* Ensure consistent width */
+}
+
+.refreshButton {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px; /* Slightly more rounded */
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease; /* Added transform */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.refreshButton:hover {
+  background-color: #45a049;
+  transform: translateY(-1px); /* Slight lift effect */
+}
+
+.refreshButton:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.errorMessage {
+  background-color: #ffebee;
+  color: #b71c1c;
+  padding: 1rem;
+  border-radius: 8px; /* Slightly more rounded */
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #ef9a9a; /* Added border */
+}
+
+.errorMessage button {
+  background: none;
+  border: 1px solid #b71c1c;
+  color: #b71c1c;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.errorMessage button:hover {
+  background-color: #b71c1c;
+  color: white;
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #4CAF50;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.noOrders {
+  text-align: center;
+  padding: 2rem;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  color: #555;
+  font-size: 1.1rem;
+}
+
+.ordersContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.ordersTable {
+  overflow-x: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+}
+
+.ordersTableInner {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ordersTableInner th,
+.ordersTableInner td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+  vertical-align: middle; /* Align content vertically */
+}
+
+.ordersTableInner th {
+  background-color: #f5f7fa;
+  font-weight: 600;
+  color: #333;
+  text-transform: uppercase; /* Make headers uppercase */
+  font-size: 0.9rem;
+}
+
+.orderRow:hover {
+  background-color: #f9f9f9;
+}
+
+.orderIdButton {
+  background: none;
+  border: none;
+  color: #1976d2;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  font-size: inherit;
+  transition: color 0.2s;
+}
+
+.orderIdButton:hover {
+  color: #0d47a1;
+}
+
+.paymentBadge {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 16px; /* More rounded */
+  font-size: 0.75rem; /* Slightly smaller font */
+  font-weight: 600; /* Bolder font */
+  text-transform: capitalize;
+}
+
+.virtual {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  border: 1px solid #bbdefb;
+}
+
+.cod {
+  background-color: #fff8e1;
+  color: #f57f17;
+  border: 1px solid #ffecb3;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 16px; /* More rounded */
+  font-size: 0.75rem; /* Slightly smaller font */
+  font-weight: 600; /* Bolder font */
+  text-transform: capitalize;
+  min-width: 80px; /* Ensure badges have a minimum width */
+  text-align: center;
+}
+
+.pending {
+  background-color: #fff3e0;
+  color: #ef6c00;
+  border: 1px solid #ffcc80;
+}
+
+.placed { /* New status style */
+  background-color: #e0f2f7; /* Light blue-green */
+  color: #00796b; /* Darker teal */
+  border: 1px solid #b2dfdb;
+}
+
+.dispatched { /* New status style */
+  background-color: #e8f5e9; /* Light green */
+  color: #388e3c; /* Darker green */
+  border: 1px solid #c8e6c9;
+}
+
+.cancelled { /* Retained for existing cancelled orders */
+  background-color: #ffebee;
+  color: #c62828;
+  border: 1px solid #ef9a9a;
+}
+
+.actionsCell {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.statusSelect {
+  padding: 0.4rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+  min-width: 100px;
+}
+
+.viewButton {
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px; /* Slightly more rounded */
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.viewButton:hover {
+  background-color: #0b7dda;
+  transform: translateY(-1px);
+}
+
+.statsContainer {
+  display: grid; /* Changed to grid for better responsiveness */
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  justify-content: center;
+}
+
+.statCard {
+  background-color: #f5f7fa;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  border: 1px solid #e0e0e0;
+}
+
+.statCard h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem; /* Slightly smaller font */
+  color: #666;
+  text-transform: uppercase;
+}
+
+.statCard p {
+  margin: 0;
+  font-size: 1.8rem; /* Larger font for emphasis */
+  font-weight: bold;
+  color: #333;
+}
+
+/* Modal styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.orderDetailModal {
+  background-color: white;
+  border-radius: 12px; /* More rounded */
+  width: 90%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3); /* Stronger shadow */
+  padding: 2rem;
+  position: relative; /* For the close button positioning */
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.modalHeader h2 {
+    margin: 0;
+    font-size: 1.8rem; /* Larger modal title */
+    color: #333;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 2rem; /* Larger close icon */
+  cursor: pointer;
+  color: #666;
+  position: absolute; /* Position close button absolutely */
+  top: 15px;
+  right: 20px;
+  transition: color 0.2s;
+}
+
+.closeButton:hover {
+  color: #333;
+}
+
+.orderInfo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsive grid */
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.orderInfo p {
+    margin-bottom: 0.5rem;
+}
+
+.orderInfo p strong {
+    color: #555;
+}
+
+.shippingInfo {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.shippingInfo h3 {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 0.8rem;
+}
+
+.orderItems {
+  margin-bottom: 1.5rem;
+}
+
+.orderItems h3 {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 0.8rem;
+}
+
+.itemsTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden; /* Ensures rounded corners on table */
+}
+
+.itemsTable th,
+.itemsTable td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.itemsTable th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+  color: #444;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+}
+
+.productInfo {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.productImage {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px; /* More rounded image */
+  border: 1px solid #eee;
+  flex-shrink: 0; /* Prevent image from shrinking */
+}
+
+.productName {
+  font-weight: 600; /* Bolder product name */
+  color: #333;
+}
+
+.productDesc {
+  font-size: 0.85rem; /* Slightly smaller description */
+  color: #777;
+}
+
+.orderSummary {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 1.2rem;
+  max-width: 350px; /* Increased max-width */
+  margin-left: auto;
+  border: 1px solid #eee;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.summaryItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.35rem 0;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.summaryTotal {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  font-size: 1.2rem; /* Larger total font */
+  margin-top: 0.8rem;
+  padding-top: 0.8rem;
+  border-top: 1px dashed #ddd; /* Dashed border for total */
+  color: #222;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.closeDetailButton {
+  background-color: #f0f0f0;
+  color: #555;
+  border: 1px solid #ddd;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.closeDetailButton:hover {
+  background-color: #e0e0e0;
+  border-color: #ccc;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .adminHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .headerControls {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filterContainer, .refreshButton {
+    width: 100%;
+  }
+
+  .ordersTableInner th,
+  .ordersTableInner td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .actionsCell {
+    flex-direction: column;
+    gap: 0.25rem;
+    align-items: flex-start;
+  }
+
+  .statusSelect, .viewButton {
+    width: 100%;
+    text-align: center;
+  }
+
+  .orderInfo {
+    grid-template-columns: 1fr; /* Stack columns on small screens */
+    gap: 1.5rem;
+  }
+
+  .orderDetailModal {
+    padding: 1rem;
+  }
+
+  .modalHeader h2 {
+    font-size: 1.5rem;
+  }
+
+  .closeButton {
+    font-size: 1.8rem;
+    top: 10px;
+    right: 10px;
+  }
+
+  .statsContainer {
+    grid-template-columns: 1fr; /* Stack stats on very small screens */
+  }
+}

@@ -2,45 +2,128 @@
 import React, { useState, useEffect } from 'react'
 import styles from './checkout.module.css'
 import { useRouter } from 'next/navigation'
+import { supabase } from '../../lib/supabaseClient' // Import supabase client
+import { sendOrderConfirmationEmail } from '../../lib/emailService'
 
 const CheckoutPage = () => {
   const [cartItems, setCartItems] = useState([])
   const [total, setTotal] = useState(0)
   const [showModal, setShowModal] = useState(false)
   const [selectedPayment, setSelectedPayment] = useState('virtual')
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    state: '',
+    pincode: '',
+  })
   const router = useRouter()
 
   useEffect(() => {
-    // Get cart items from localStorage
+    // Initialize anonymous session
+    const initializeSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      if (!session) {
+        const { data, error } = await supabase.auth.signInAnonymously()
+        if (error) console.error('Anonymous sign-in failed:', error)
+      }
+    }
+
+    initializeSession()
+
+    // Get cart items
     const savedCart = localStorage.getItem('cart')
     if (savedCart) {
       const parsedCart = JSON.parse(savedCart)
       setCartItems(parsedCart)
-      // Calculate total
-      const calculatedTotal = parsedCart.reduce(
-        (sum, item) =>
-          sum +
-          parseInt(item.price.replace('₹', '').replace(',', '')) *
-            item.quantity,
+      // Calculate total directly from the numeric price values
+      const total = parsedCart.reduce(
+        (sum, item) => sum + item.price * item.quantity,
         0
       )
-      setTotal(calculatedTotal)
+      setTotal(total)
     }
   }, [])
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }))
+  }
 
   const handleMakePayment = (e) => {
     e.preventDefault()
     setShowModal(true)
   }
 
-  const handleConfirmPay = () => {
-    setShowModal(false)
-    // Add payment logic here
-    alert(
-      `Payment method: ${
-        selectedPayment === 'virtual' ? 'Virtual Payment' : 'Cash on Delivery'
-      }`
-    )
+  const handleConfirmPay = async () => {
+    setIsProcessing(true)
+
+    try {
+      // Get current session
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      if (!session) {
+        throw new Error('Session not available')
+      }
+
+      // Calculate order values
+      const shipping = 100
+      const tax = total * 0.18
+      const totalAmount = total + shipping + tax
+
+      // Create order object
+      const order = {
+        user_id: session.user.id,
+        customer_name: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        shipping_address: formData.address,
+        items: cartItems,
+        subtotal: total,
+        shipping: shipping,
+        tax: tax,
+        total: totalAmount,
+        payment_method: selectedPayment,
+        status: 'pending',
+      }
+
+      // Insert into Supabase
+      const { data: insertedOrder, error } = await supabase
+        .from('orders')
+        .insert(order)
+        .select()
+
+      if (error) throw error
+
+      // Send order confirmation email
+      try {
+        await sendOrderConfirmationEmail(insertedOrder[0])
+      } catch (emailError) {
+        console.error('Failed to send order confirmation email:', emailError)
+        // Continue with the order process even if email fails
+      }
+
+      // Clear cart and redirect
+      localStorage.removeItem('cart')
+      router.push('/thank-you')
+    } catch (error) {
+      console.error('Order submission failed:', error)
+      alert('Order failed: ' + error.message)
+    } finally {
+      setIsProcessing(false)
+      setShowModal(false)
+    }
   }
 
   return (
@@ -65,8 +148,11 @@ const CheckoutPage = () => {
                 <input
                   type="text"
                   id="fullName"
+                  name="fullName"
                   placeholder="Enter your full name"
                   required
+                  value={formData.fullName}
+                  onChange={handleInputChange}
                 />
               </div>
               <div className={styles.formGroup}>
@@ -74,8 +160,11 @@ const CheckoutPage = () => {
                 <input
                   type="email"
                   id="email"
+                  name="email"
                   placeholder="Enter your email"
                   required
+                  value={formData.email}
+                  onChange={handleInputChange}
                 />
               </div>
               <div className={styles.formGroup}>
@@ -83,18 +172,25 @@ const CheckoutPage = () => {
                 <input
                   type="tel"
                   id="phone"
+                  name="phone"
                   placeholder="Enter your phone number"
                   required
+                  value={formData.phone}
+                  onChange={handleInputChange}
                 />
               </div>
               <div className={styles.formGroup}>
                 <label htmlFor="address">Delivery Address</label>
                 <textarea
                   id="address"
+                  name="address"
                   placeholder="Enter your delivery address"
                   required
+                  value={formData.address}
+                  onChange={handleInputChange}
                 ></textarea>
               </div>
+
               <button type="submit" className={styles.makePaymentButton}>
                 Make Payment
               </button>
@@ -112,13 +208,13 @@ const CheckoutPage = () => {
               {cartItems.map((item, index) => (
                 <div key={index} className={styles.cartItem}>
                   <img
-                    src={item.image}
+                    src={item.imageUrl}
                     alt={item.name}
                     className={styles.itemImage}
                   />
                   <div className={styles.itemDetails}>
                     <h3 className={styles.itemName}>{item.name}</h3>
-                    <p className={styles.itemPrice}>{item.price}</p>
+                    <p className={styles.itemPrice}>₹{item.price}</p>
                     <p className={styles.itemQuantity}>
                       Quantity: {item.quantity}
                     </p>
