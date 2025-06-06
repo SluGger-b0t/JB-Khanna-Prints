@@ -81,27 +81,115 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="py-16 text-center">
-        <div className="container mx-auto px-4">
-          <h2 className="cormorant-heading text-[#2f4f4f] heading-underline mb-8">
-            Explore Our Products
-          </h2>
-          <p className="text-sm md:text-lg text-[#2f4f4fcc] mb-8 w-full md:w-1/2 mx-auto">
-            Discover our exquisite collection of canvas paintings, each piece
-            thoughtfully curated to add charm and character to any space.
-          </p>
-          <div className="flex justify-center gap-4">
+      <section className="py-16 md:py-20 text-center relative overflow-hidden  mt-16">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#2f4f4f] to-[#426969] opacity-95"></div>
+        <div className="absolute inset-0 bg-[url('/images/texture-background.jpg')] opacity-10"></div>
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-2xl mx-auto mb-12">
+            <h2 className="cormorant-heading text-[#f7e0ab] heading-underline mb-6 text-3xl md:text-4xl">
+              Premium Collection
+            </h2>
+            <p className="text-base md:text-lg text-[#f7e0abcc] leading-relaxed">
+              Experience our exclusive premium collection featuring handcrafted
+              masterpieces, limited edition prints, and bespoke designs that
+              embody the perfect blend of tradition and contemporary artistry.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-12">
+            <div className="bg-white/10 backdrop-blur-sm p-6 rounded-xl border border-[#f7e0ab]/20 hover:border-[#f7e0ab]/40 transition-all duration-300 group">
+              <div className="h-12 w-12 mx-auto mb-4 bg-[#f7e0ab]/10 rounded-full flex items-center justify-center group-hover:bg-[#f7e0ab]/20 transition-all duration-300">
+                <svg
+                  className="w-6 h-6 text-[#f7e0ab]"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="1.5"
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-[#f7e0ab] mb-3">
+                Exclusive Prints
+              </h3>
+              <p className="text-sm text-[#f7e0abcc]">
+                Limited edition prints with premium finishes and unique designs
+              </p>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-sm p-6 rounded-xl border border-[#f7e0ab]/20 hover:border-[#f7e0ab]/40 transition-all duration-300 group">
+              <div className="h-12 w-12 mx-auto mb-4 bg-[#f7e0ab]/10 rounded-full flex items-center justify-center group-hover:bg-[#f7e0ab]/20 transition-all duration-300">
+                <svg
+                  className="w-6 h-6 text-[#f7e0ab]"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="1.5"
+                    d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-[#f7e0ab] mb-3">
+                Custom Designs
+              </h3>
+              <p className="text-sm text-[#f7e0abcc]">
+                Bespoke creations tailored to your specific requirements
+              </p>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-sm p-6 rounded-xl border border-[#f7e0ab]/20 hover:border-[#f7e0ab]/40 transition-all duration-300 group">
+              <div className="h-12 w-12 mx-auto mb-4 bg-[#f7e0ab]/10 rounded-full flex items-center justify-center group-hover:bg-[#f7e0ab]/20 transition-all duration-300">
+                <svg
+                  className="w-6 h-6 text-[#f7e0ab]"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="1.5"
+                    d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-[#f7e0ab] mb-3">
+                Premium Finishes
+              </h3>
+              <p className="text-sm text-[#f7e0abcc]">
+                Luxurious finishes including gold foil, embossing, and special
+                laminations
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-8">
             <a
-              href="/product"
-              className="inline-flex items-center px-8 py-4 bg-[#2f4f4f] text-[#f7e0ab] rounded-lg hover:bg-[#f7e0ab] hover:text-[#2f4f4f] transition-colors text-lg font-medium"
+              href="/premium"
+              className="inline-flex items-center px-8 py-3 bg-[#f7e0ab] text-[#2f4f4f] rounded-full hover:bg-[#f7e0ab]/90 transition-all duration-300 text-base font-medium shadow-lg hover:shadow-xl hover:scale-105"
             >
-              View All Products
-            </a>
-            <a
-              href="/career"
-              className="inline-flex items-center px-8 py-4 bg-[#2f4f4f] text-[#f7e0ab] rounded-lg hover:bg-[#f7e0ab] hover:text-[#2f4f4f] transition-colors text-lg font-medium"
-            >
-              Join Our Team
+              Explore Premium Collection
+              <svg
+                className="w-4 h-4 ml-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M17 8l4 4m0 0l-4 4m4-4H3"
+                />
+              </svg>
             </a>
           </div>
         </div>

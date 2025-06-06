@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react'
 import styles from './checkout.module.css'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabaseClient' // Import supabase client
-import { sendOrderConfirmationEmail } from '../../lib/emailService'
 
 const CheckoutPage = () => {
   const [cartItems, setCartItems] = useState([])
@@ -106,12 +105,27 @@ const CheckoutPage = () => {
 
       if (error) throw error
 
-      // Send order confirmation email
+      // Send order confirmation email via API route
       try {
-        await sendOrderConfirmationEmail(insertedOrder[0])
+        const response = await fetch('/api/send-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(insertedOrder[0]),
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json()
+          console.error(
+            'Failed to send order confirmation email:',
+            errorData.message
+          )
+          // Optionally handle different error statuses
+        }
       } catch (emailError) {
-        console.error('Failed to send order confirmation email:', emailError)
-        // Continue with the order process even if email fails
+        console.error('Error calling email API route:', emailError)
+        // Continue with the order process even if email API call fails
       }
 
       // Clear cart and redirect

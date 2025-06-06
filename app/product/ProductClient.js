@@ -248,6 +248,25 @@ const ProductClient = ({ products }) => {
             </div>
           </div>
 
+          {/* Mobile Category Dropdown */}
+          <div className="block lg:hidden mb-8">
+            <label htmlFor="category-select" className="sr-only">
+              Select a category
+            </label>
+            <select
+              id="category-select"
+              className="w-full p-3 border border-gray-300 rounded-lg text-[#2f4f4f] bg-white"
+              value={activeSection}
+              onChange={(e) => setActiveSection(e.target.value)}
+            >
+              {Object.keys(products).map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div className="flex flex-col lg:flex-row">
             {/* Sidebar Navigation - Hidden on mobile */}
             <div className="hidden lg:block w-64 flex-shrink-0 pr-4 border-r border-gray-200">
