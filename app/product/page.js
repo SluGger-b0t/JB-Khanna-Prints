@@ -16,13 +16,23 @@ async function getProducts() {
       category,
       price,
       description,
-      "imageUrl": image.asset->url,
+      "image": image.asset->url,
       product_id
     }
   `)
 
-  // Group products by category
-  const productsByCategory = products.reduce((acc, product) => {
+  console.log('Fetched products from Sanity:', products)
+
+  // Filter out premium products for this page
+  const nonPremiumProducts = products.filter((product) => {
+    const category = product.category
+      ? product.category.toLowerCase().trim()
+      : ''
+    return category !== 'premium'
+  })
+
+  // Group non-premium products by category
+  const productsByCategory = nonPremiumProducts.reduce((acc, product) => {
     const category = product.category || 'uncategorized'
     if (!acc[category]) {
       acc[category] = []

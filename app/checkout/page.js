@@ -1,318 +1,345 @@
 'use client'
+
 import React, { useState, useEffect } from 'react'
-import styles from './checkout.module.css'
 import { useRouter } from 'next/navigation'
-import { supabase } from '../../lib/supabaseClient' // Import supabase client
+import { ToastContainer, toast } from 'react-toastify'
+import Image from 'next/image'
+import 'react-toastify/dist/ReactToastify.css'
 
 const CheckoutPage = () => {
+  const router = useRouter()
   const [cartItems, setCartItems] = useState([])
-  const [total, setTotal] = useState(0)
-  const [showModal, setShowModal] = useState(false)
-  const [selectedPayment, setSelectedPayment] = useState('virtual')
-  const [isProcessing, setIsProcessing] = useState(false)
   const [formData, setFormData] = useState({
-    fullName: '',
+    name: '',
     email: '',
-    phone: '',
     address: '',
     city: '',
-    state: '',
-    pincode: '',
+    zip: '',
   })
-  const router = useRouter()
 
   useEffect(() => {
-    // Initialize anonymous session
-    const initializeSession = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-
-      if (!session) {
-        const { data, error } = await supabase.auth.signInAnonymously()
-        if (error) console.error('Anonymous sign-in failed:', error)
+    // Load cart items from localStorage
+    const loadCartItems = () => {
+      const savedCart = localStorage.getItem('cart')
+      if (savedCart) {
+        setCartItems(JSON.parse(savedCart))
       }
     }
 
-    initializeSession()
-
-    // Get cart items
-    const savedCart = localStorage.getItem('cart')
-    if (savedCart) {
-      const parsedCart = JSON.parse(savedCart)
-      setCartItems(parsedCart)
-      // Calculate total directly from the numeric price values
-      const total = parsedCart.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0
-      )
-      setTotal(total)
-    }
+    loadCartItems()
   }, [])
+
+  const handleQuantityChange = (id, newQuantity) => {
+    const updatedItems = cartItems.map((item) =>
+      item._id === id ? { ...item, quantity: Math.max(1, newQuantity) } : item
+    )
+    setCartItems(updatedItems)
+    localStorage.setItem('cart', JSON.stringify(updatedItems))
+  }
+
+  const handleRemoveItem = (id) => {
+    const updatedItems = cartItems.filter((item) => item._id !== id)
+    setCartItems(updatedItems)
+    localStorage.setItem('cart', JSON.stringify(updatedItems))
+    toast.info('Item removed from cart', { position: 'bottom-right' })
+  }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
+    setFormData((prevData) => ({ ...prevData, [name]: value }))
   }
 
-  const handleMakePayment = (e) => {
-    e.preventDefault()
-    setShowModal(true)
+  const calculateSubtotal = (items) => {
+    return items.reduce((total, item) => total + item.price * item.quantity, 0)
   }
 
-  const handleConfirmPay = async () => {
-    setIsProcessing(true)
+  const calculateTotal = () => {
+    const premiumSubtotal = calculateSubtotal(premiumItems)
+    const normalSubtotal = calculateSubtotal(normalItems)
+    const subtotal = premiumSubtotal + normalSubtotal
+    const tax = subtotal * 0.05 // Example tax
+    return subtotal + tax
+  }
 
-    try {
-      // Get current session
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-
-      if (!session) {
-        throw new Error('Session not available')
-      }
-
-      // Calculate order values
-      const shipping = 100
-      const tax = total * 0.18
-      const totalAmount = total + shipping + tax
-
-      // Create order object
-      const order = {
-        user_id: session.user.id,
-        customer_name: formData.fullName,
-        email: formData.email,
-        phone: formData.phone,
-        shipping_address: formData.address,
-        items: cartItems,
-        subtotal: total,
-        shipping: shipping,
-        tax: tax,
-        total: totalAmount,
-        payment_method: selectedPayment,
-        status: 'pending',
-      }
-
-      // Insert into Supabase
-      const { data: insertedOrder, error } = await supabase
-        .from('orders')
-        .insert(order)
-        .select()
-
-      if (error) throw error
-
-      // Send order confirmation email via API route
-      try {
-        const response = await fetch('/api/send-email', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(insertedOrder[0]),
-        })
-
-        if (!response.ok) {
-          const errorData = await response.json()
-          console.error(
-            'Failed to send order confirmation email:',
-            errorData.message
-          )
-          // Optionally handle different error statuses
-        }
-      } catch (emailError) {
-        console.error('Error calling email API route:', emailError)
-        // Continue with the order process even if email API call fails
-      }
-
-      // Clear cart and redirect
-      localStorage.removeItem('cart')
-      router.push('/thank-you')
-    } catch (error) {
-      console.error('Order submission failed:', error)
-      alert('Order failed: ' + error.message)
-    } finally {
-      setIsProcessing(false)
-      setShowModal(false)
+  const handlePlaceOrder = () => {
+    if (cartItems.length === 0) {
+      toast.error('Your cart is empty!', { position: 'bottom-right' })
+      return
     }
+    if (
+      !formData.name ||
+      !formData.email ||
+      !formData.address ||
+      !formData.city ||
+      !formData.zip
+    ) {
+      toast.error('Please fill in all shipping details.', {
+        position: 'bottom-right',
+      })
+      return
+    }
+
+    // Here you would typically send the order to your backend
+    console.log('Order Placed:', { cartItems, formData })
+
+    // Clear cart after successful order
+    localStorage.removeItem('cart')
+    setCartItems([])
+    setFormData({
+      name: '',
+      email: '',
+      address: '',
+      city: '',
+      zip: '',
+    })
+
+    toast.success('Order placed successfully!', { position: 'bottom-right' })
+    // router.push('/order-confirmation') // Redirect to a confirmation page
   }
 
-  return (
-    <div className={styles.checkoutContainer}>
-      <button
-        className={styles.goBackButton}
-        onClick={() => router.push('/product')}
-      >
-        ← Go Back
-      </button>
-      <div className={styles.checkoutWrapper}>
-        {/* Left Section - Personal Details */}
-        <div className={styles.leftSection}>
-          <h1 className={styles.title}>Checkout</h1>
+  // Separate premium and normal items
+  const premiumItems = cartItems.filter((item) => item.category === 'premium ')
+  const normalItems = cartItems.filter((item) => item.category !== 'premium ')
 
-          {/* Personal Details Form */}
-          <div className={styles.formSection}>
-            <h2>Personal Details</h2>
-            <form className={styles.form} onSubmit={handleMakePayment}>
-              <div className={styles.formGroup}>
-                <label htmlFor="fullName">Full Name</label>
-                <input
-                  type="text"
-                  id="fullName"
-                  name="fullName"
-                  placeholder="Enter your full name"
-                  required
-                  value={formData.fullName}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <label htmlFor="email">Email</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  placeholder="Enter your email"
-                  required
-                  value={formData.email}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <label htmlFor="phone">Phone Number</label>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  placeholder="Enter your phone number"
-                  required
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <label htmlFor="address">Delivery Address</label>
-                <textarea
-                  id="address"
-                  name="address"
-                  placeholder="Enter your delivery address"
-                  required
-                  value={formData.address}
-                  onChange={handleInputChange}
-                ></textarea>
-              </div>
-
-              <button type="submit" className={styles.makePaymentButton}>
-                Make Payment
-              </button>
-            </form>
-          </div>
+  const CartItem = ({ item }) => (
+    <div className="flex items-center justify-between border-b border-gray-200 py-4">
+      <div className="flex items-center space-x-4">
+        <div className="relative w-20 h-20">
+          {item.image ? (
+            <Image
+              src={item.image}
+              alt={item.name}
+              fill
+              className="object-contain rounded-md"
+              sizes="80px"
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-100 rounded-md flex items-center justify-center">
+              <span className="text-gray-400 text-sm">No image</span>
+            </div>
+          )}
         </div>
-
-        {/* Right Section - Order Summary */}
-        <div className={styles.rightSection}>
-          <div className={styles.orderSummary}>
-            <h2>Order Summary</h2>
-
-            {/* Cart Items */}
-            <div className={styles.cartItems}>
-              {cartItems.map((item, index) => (
-                <div key={index} className={styles.cartItem}>
-                  <img
-                    src={item.imageUrl}
-                    alt={item.name}
-                    className={styles.itemImage}
-                  />
-                  <div className={styles.itemDetails}>
-                    <h3 className={styles.itemName}>{item.name}</h3>
-                    <p className={styles.itemPrice}>₹{item.price}</p>
-                    <p className={styles.itemQuantity}>
-                      Quantity: {item.quantity}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Order Total */}
-            <div className={styles.summaryItem}>
-              <span>Subtotal</span>
-              <span>₹{total}</span>
-            </div>
-            <div className={styles.summaryItem}>
-              <span>Shipping</span>
-              <span>₹100</span>
-            </div>
-            <div className={styles.summaryItem}>
-              <span>Tax</span>
-              <span>₹{(total * 0.18).toFixed(2)}</span>
-            </div>
-            <div className={styles.summaryTotal}>
-              <span>Total</span>
-              <span>₹{(total + 100 + total * 0.18).toFixed(2)}</span>
-            </div>
-          </div>
+        <div>
+          <h3 className="text-lg font-medium text-[#2f4f4f]">{item.name}</h3>
+          <p className="text-[#2f4f4fcc]">₹{item.price.toFixed(2)}</p>
         </div>
       </div>
+      <div className="flex items-center space-x-4">
+        <button
+          onClick={() => handleQuantityChange(item._id, item.quantity - 1)}
+          className="px-3 py-1 bg-[#f7e0ab] text-[#2f4f4f] rounded-md hover:bg-[#f7e0ab]/90 transition-colors"
+        >
+          -
+        </button>
+        <span className="text-[#2f4f4f]">{item.quantity}</span>
+        <button
+          onClick={() => handleQuantityChange(item._id, item.quantity + 1)}
+          className="px-3 py-1 bg-[#f7e0ab] text-[#2f4f4f] rounded-md hover:bg-[#f7e0ab]/90 transition-colors"
+        >
+          +
+        </button>
+        <button
+          onClick={() => handleRemoveItem(item._id)}
+          className="text-red-500 hover:text-red-700 transition-colors"
+        >
+          Remove
+        </button>
+      </div>
+    </div>
+  )
 
-      {/* Payment Modal */}
-      {showModal && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.paymentModal}>
-            <h2 className={styles.modalTitle}>Payment Method</h2>
-            <p className={styles.modalSubtitle}>
-              Select your payment method before proceeding
-            </p>
-            <div className={styles.paymentOptionsModal}>
-              <div
-                className={`${styles.paymentOptionModal} ${
-                  selectedPayment === 'virtual' ? styles.selectedPayment : ''
-                }`}
-                onClick={() => setSelectedPayment('virtual')}
-              >
-                <div className={styles.paymentIcon}>🏦</div>
-                <div>
-                  <div className={styles.paymentLabel}>Virtual Payment</div>
-                  <div className={styles.paymentDesc}>
-                    Net Banking Debit/Credit UPI Net Banking
-                  </div>
+  return (
+    <div className="bg-white font-quicksand min-h-screen pt-8 sm:pt-12 md:pt-16">
+      <section className="py-8 sm:py-12 md:py-16 bg-gray-100 px-4">
+        <div className="container mx-auto">
+          <h1 className="cormorant-heading text-[#2f4f4f] text-3xl sm:text-4xl md:text-5xl text-center mb-8 md:mb-12 heading-underline">
+            Checkout
+          </h1>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Cart Items */}
+            <div className="lg:col-span-2 bg-white p-4 sm:p-6 rounded-lg shadow-lg">
+              <h2 className="text-xl sm:text-2xl font-semibold text-[#2f4f4f] mb-6">
+                Your Cart
+              </h2>
+              {cartItems.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-[#2f4f4fcc] text-base sm:text-lg mb-4">
+                    Your cart is empty.
+                  </p>
+                  <button
+                    onClick={() => router.push('/premium')}
+                    className="px-4 py-2 sm:px-6 sm:py-2 bg-[#f7e0ab] text-[#2f4f4f] rounded-full hover:bg-[#f7e0ab]/90 transition-colors text-sm sm:text-base"
+                  >
+                    Continue Shopping
+                  </button>
                 </div>
-              </div>
-              <div
-                className={`${styles.paymentOptionModal} ${
-                  selectedPayment === 'cod' ? styles.selectedPayment : ''
-                }`}
-                onClick={() => setSelectedPayment('cod')}
-              >
-                <div className={styles.paymentIcon}>🚚</div>
-                <div>
-                  <div className={styles.paymentLabel}>Cash on Delivery</div>
-                  <div className={styles.paymentDesc}>
-                    Pay once your order arrives at your doorstep
-                  </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* Premium Products Section */}
+                  {premiumItems.length > 0 && (
+                    <div>
+                      <h3 className="text-lg sm:text-xl font-semibold text-[#2f4f4f] mb-4">
+                        Premium Collection
+                      </h3>
+                      <div className="space-y-4">
+                        {premiumItems.map((item) => (
+                          <CartItem key={item._id} item={item} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Normal Products Section */}
+                  {normalItems.length > 0 && (
+                    <div>
+                      <h3 className="text-lg sm:text-xl font-semibold text-[#2f4f4f] mb-4">
+                        Regular Collection
+                      </h3>
+                      <div className="space-y-4">
+                        {normalItems.map((item) => (
+                          <CartItem key={item._id} item={item} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
+              )}
             </div>
-            <div className={styles.modalActions}>
+
+            {/* Order Summary */}
+            <div className="bg-white p-4 sm:p-6 rounded-lg shadow-lg">
+              <h2 className="text-xl sm:text-2xl font-semibold text-[#2f4f4f] mb-6">
+                Order Summary
+              </h2>
+              <div className="space-y-3 text-[#2f4f4fcc] text-sm sm:text-base">
+                {premiumItems.length > 0 && (
+                  <div className="flex justify-between">
+                    <span>Premium Items Subtotal:</span>
+                    <span>₹{calculateSubtotal(premiumItems).toFixed(2)}</span>
+                  </div>
+                )}
+                {normalItems.length > 0 && (
+                  <div className="flex justify-between">
+                    <span>Regular Items Subtotal:</span>
+                    <span>₹{calculateSubtotal(normalItems).toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <span>Tax (5%):</span>
+                  <span>
+                    ₹
+                    {(calculateTotal() - calculateSubtotal(cartItems)).toFixed(
+                      2
+                    )}
+                  </span>
+                </div>
+                <div className="flex justify-between text-lg sm:text-xl font-bold text-[#2f4f4f] pt-4 border-t border-gray-200">
+                  <span>Total:</span>
+                  <span>₹{calculateTotal().toFixed(2)}</span>
+                </div>
+              </div>
+
+              {/* Shipping Information */}
+              <h2 className="text-xl sm:text-2xl font-semibold text-[#2f4f4f] mt-8 mb-6">
+                Shipping Information
+              </h2>
+              <form className="space-y-4">
+                <div>
+                  <label
+                    htmlFor="name"
+                    className="block text-sm sm:text-base font-medium text-[#2f4f4f]"
+                  >
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full px-3 py-2 sm:px-4 sm:py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#f7e0ab] focus:border-[#f7e0ab] text-sm sm:text-base"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm sm:text-base font-medium text-[#2f4f4f]"
+                  >
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full px-3 py-2 sm:px-4 sm:py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#f7e0ab] focus:border-[#f7e0ab] text-sm sm:text-base"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="address"
+                    className="block text-sm sm:text-base font-medium text-[#2f4f4f]"
+                  >
+                    Address
+                  </label>
+                  <input
+                    type="text"
+                    id="address"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full px-3 py-2 sm:px-4 sm:py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#f7e0ab] focus:border-[#f7e0ab] text-sm sm:text-base"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label
+                      htmlFor="city"
+                      className="block text-sm sm:text-base font-medium text-[#2f4f4f]"
+                    >
+                      City
+                    </label>
+                    <input
+                      type="text"
+                      id="city"
+                      name="city"
+                      value={formData.city}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full px-3 py-2 sm:px-4 sm:py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#f7e0ab] focus:border-[#f7e0ab] text-sm sm:text-base"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="zip"
+                      className="block text-sm sm:text-base font-medium text-[#2f4f4f]"
+                    >
+                      Zip Code
+                    </label>
+                    <input
+                      type="text"
+                      id="zip"
+                      name="zip"
+                      value={formData.zip}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full px-3 py-2 sm:px-4 sm:py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#f7e0ab] focus:border-[#f7e0ab] text-sm sm:text-base"
+                    />
+                  </div>
+                </div>
+              </form>
+
               <button
-                className={styles.confirmButton}
-                onClick={handleConfirmPay}
+                onClick={handlePlaceOrder}
+                className="mt-6 w-full px-6 py-2 sm:px-8 sm:py-3 bg-[#f7e0ab] text-[#2f4f4f] rounded-full hover:bg-[#f7e0ab]/90 transition-all duration-300 text-base sm:text-lg font-medium shadow-lg hover:shadow-xl"
               >
-                Confirm & Pay
-              </button>
-              <button
-                className={styles.cancelButton}
-                onClick={() => setShowModal(false)}
-              >
-                Cancel
+                Place Order
               </button>
             </div>
           </div>
         </div>
-      )}
+      </section>
+      <ToastContainer />
     </div>
   )
 }

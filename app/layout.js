@@ -4,6 +4,7 @@ import Navbar from '@/components/Navbar'
 import { Dancing_Script } from 'next/font/google'
 import { Whisper } from 'next/font/google'
 import { Cormorant_Garamond } from 'next/font/google'
+import { Footer } from '@/components/Footer'
 // import { usePathname } from 'next/navigation'
 
 const whisper = Whisper({
@@ -40,10 +41,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${whisper.variable} ${cormorant.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${whisper.variable} ${cormorant.variable} antialiased flex flex-col min-h-screen`}
       >
-        {!hideNavbar && <Navbar />}
-        {children}
+        <div className="relative">{!hideNavbar && <Navbar />}</div>
+        <div className="flex-grow">{children}</div>
+        <Footer />
       </body>
     </html>
   )

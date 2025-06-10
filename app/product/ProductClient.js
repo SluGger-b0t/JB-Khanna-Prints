@@ -3,6 +3,10 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import './style.css'
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+import Image from 'next/image'
+import Link from 'next/link'
 
 const ProductClient = ({ products }) => {
   const [activeSection, setActiveSection] = useState(
@@ -27,10 +31,23 @@ const ProductClient = ({ products }) => {
               ? { ...item, quantity: item.quantity + 1 }
               : item
           )
-        : [...prevCart, { ...product, quantity: 1 }]
+        : [
+            ...prevCart,
+            { ...product, quantity: 1, image: product.image || null },
+          ]
 
       localStorage.setItem('cart', JSON.stringify(newCart))
       return newCart
+    })
+    toast.success(`${product.name} added to cart!`, {
+      position: 'bottom-right',
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: 'light',
     })
     setShowCart(true)
   }
@@ -58,6 +75,56 @@ const ProductClient = ({ products }) => {
     return cart.reduce((total, item) => total + item.quantity, 0)
   }
 
+  // Separate premium and normal items for display in cart preview
+  const premiumItems = cart.filter(
+    (item) => item.category && item.category.toLowerCase().trim() === 'premium'
+  )
+  const normalItems = cart.filter(
+    (item) => !item.category || item.category.toLowerCase().trim() !== 'premium'
+  )
+
+  const CartItemPreview = ({ item }) => (
+    <div
+      key={item._id}
+      className="flex items-center space-x-4 p-2 bg-gray-50 rounded-lg"
+    >
+      <div className="relative w-16 h-16 flex-shrink-0">
+        {item.image ? (
+          <Image
+            src={item.image}
+            alt={item.name}
+            fill
+            className="object-contain rounded-md"
+            sizes="64px"
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-100 rounded-md flex items-center justify-center">
+            <span className="text-gray-400 text-xs">No image</span>
+          </div>
+        )}
+      </div>
+      <div className="flex-grow">
+        <h3 className="text-sm font-medium text-[#2f4f4f]">{item.name}</h3>
+        <p className="text-sm text-[#2f4f4f]/70">₹{item.price.toFixed(2)}</p>
+      </div>
+      <div className="flex items-center space-x-2">
+        <button
+          onClick={() => handleQuantityChange(item.name, -1)}
+          className="px-2 py-1 bg-[#2f4f4f] text-white rounded hover:bg-[#f7e0ab] hover:text-[#2f4f4f]"
+        >
+          -
+        </button>
+        <span className="text-[#2f4f4f]">{item.quantity}</span>
+        <button
+          onClick={() => handleQuantityChange(item.name, 1)}
+          className="px-2 py-1 bg-[#2f4f4f] text-white rounded hover:bg-[#f7e0ab] hover:text-[#2f4f4f]"
+        >
+          +
+        </button>
+      </div>
+    </div>
+  )
+
   const renderProductCard = (product) => (
     <div
       key={product._id}
@@ -65,7 +132,7 @@ const ProductClient = ({ products }) => {
     >
       <div className="relative">
         <img
-          src={product.imageUrl}
+          src={product.image}
           alt={product.name}
           className="w-full h-48 sm:h-56 lg:h-64 object-contain"
         />
@@ -86,12 +153,19 @@ const ProductClient = ({ products }) => {
           <span className="text-lg font-semibold text-[#2f4f4f]">
             ₹{product.price}
           </span>
-          <button
-            onClick={() => handleAddToCart(product)}
-            className="px-4 py-2 bg-[#2f4f4f] text-white rounded-lg hover:bg-[#f7e0ab] hover:text-[#2f4f4f] transition-colors"
-          >
-            Add to Cart
-          </button>
+          <div className="flex space-x-2">
+            <Link href={`/products/${product.product_id.current}`}>
+              <button className="px-4 py-2 bg-[#2f4f4f]/10 text-[#2f4f4f] text-sm rounded-lg hover:bg-[#2f4f4f]/20 transition-all duration-300">
+                View Details
+              </button>
+            </Link>
+            <button
+              onClick={() => handleAddToCart(product)}
+              className="px-4 py-2 bg-[#2f4f4f] text-white rounded-lg hover:bg-[#f7e0ab] hover:text-[#2f4f4f] transition-colors"
+            >
+              Add to Cart
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -150,41 +224,26 @@ const ProductClient = ({ products }) => {
                 </p>
               ) : (
                 <div className="space-y-4">
-                  {cart.map((item) => (
-                    <div
-                      key={item._id}
-                      className="flex items-center space-x-4 p-2 bg-gray-50 rounded-lg"
-                    >
-                      <img
-                        src={item.imageUrl}
-                        alt={item.name}
-                        className="w-16 h-16 object-contain"
-                      />
-                      <div className="flex-grow">
-                        <h3 className="text-sm font-medium text-[#2f4f4f]">
-                          {item.name}
-                        </h3>
-                        <p className="text-sm text-[#2f4f4f]/70">
-                          ₹{item.price}
-                        </p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => handleQuantityChange(item.name, -1)}
-                          className="px-2 py-1 bg-[#2f4f4f] text-white rounded hover:bg-[#f7e0ab] hover:text-[#2f4f4f]"
-                        >
-                          -
-                        </button>
-                        <span className="text-[#2f4f4f]">{item.quantity}</span>
-                        <button
-                          onClick={() => handleQuantityChange(item.name, 1)}
-                          className="px-2 py-1 bg-[#2f4f4f] text-white rounded hover:bg-[#f7e0ab] hover:text-[#2f4f4f]"
-                        >
-                          +
-                        </button>
-                      </div>
+                  {premiumItems.length > 0 && (
+                    <div>
+                      <h3 className="text-md font-semibold text-[#2f4f4f] mb-2">
+                        Premium Collection
+                      </h3>
+                      {premiumItems.map((item) => (
+                        <CartItemPreview key={item._id} item={item} />
+                      ))}
                     </div>
-                  ))}
+                  )}
+                  {normalItems.length > 0 && (
+                    <div>
+                      <h3 className="text-md font-semibold text-[#2f4f4f] mb-2">
+                        Regular Collection
+                      </h3>
+                      {normalItems.map((item) => (
+                        <CartItemPreview key={item._id} item={item} />
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -223,29 +282,6 @@ const ProductClient = ({ products }) => {
               Each piece is thoughtfully curated to add charm and character to
               any space.
             </p>
-            <div className="flex justify-center mt-8">
-              <a
-                href="Canvaspainting.pdf"
-                download
-                className="inline-flex items-center px-6 py-3 bg-[#2f4f4f] text-white rounded-lg hover:bg-[#f7e0ab] hover:text-[#2f4f4f] transition-colors text-sm sm:text-base lg:text-lg font-medium"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-2"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
-                Download Brochure
-              </a>
-            </div>
           </div>
 
           {/* Mobile Category Dropdown */}
