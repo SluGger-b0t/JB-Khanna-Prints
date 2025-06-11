@@ -8,6 +8,7 @@ const CheckoutPage = () => {
   const [cartItems, setCartItems] = useState([])
   const [total, setTotal] = useState(0)
   const [showModal, setShowModal] = useState(false)
+  const [emailStatus, setEmailStatus] = useState(null) // 'success' | 'error' | null
   const [selectedPayment, setSelectedPayment] = useState('virtual')
   const [isProcessing, setIsProcessing] = useState(false)
   const [formData, setFormData] = useState({
@@ -63,82 +64,87 @@ const CheckoutPage = () => {
     setShowModal(true)
   }
 
-  const handleConfirmPay = async () => {
-    setIsProcessing(true)
+const handleConfirmPay = async () => {
+  setIsProcessing(true)
 
-    try {
-      // Get current session
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-
-      if (!session) {
-        throw new Error('Session not available')
-      }
-
-      // Calculate order values
-      const shipping = 100
-      const tax = total * 0.18
-      const totalAmount = total + shipping + tax
-
-      // Create order object
-      const order = {
-        user_id: session.user.id,
-        customer_name: formData.fullName,
-        email: formData.email,
-        phone: formData.phone,
-        shipping_address: formData.address,
-        items: cartItems,
-        subtotal: total,
-        shipping: shipping,
-        tax: tax,
-        total: totalAmount,
-        payment_method: selectedPayment,
-        status: 'pending',
-      }
-
-      // Insert into Supabase
-      const { data: insertedOrder, error } = await supabase
-        .from('orders')
-        .insert(order)
-        .select()
-
-      if (error) throw error
-
-      // Send order confirmation email via API route
-      try {
-        const response = await fetch('/api/send-email', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(insertedOrder[0]),
-        })
-
-        if (!response.ok) {
-          const errorData = await response.json()
-          console.error(
-            'Failed to send order confirmation email:',
-            errorData.message
-          )
-          // Optionally handle different error statuses
-        }
-      } catch (emailError) {
-        console.error('Error calling email API route:', emailError)
-        // Continue with the order process even if email API call fails
-      }
-
-      // Clear cart and redirect
-      localStorage.removeItem('cart')
-      router.push('/thank-you')
-    } catch (error) {
-      console.error('Order submission failed:', error)
-      alert('Order failed: ' + error.message)
-    } finally {
-      setIsProcessing(false)
-      setShowModal(false)
+  try {
+    // Get current session
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) {
+      throw new Error('Session not available')
     }
+
+    // Calculate order values
+    const shipping = 100
+    const tax = total * 0.18
+    const totalAmount = total + shipping + tax
+
+    // Create order object
+    const order = {
+      user_id: session.user.id,
+      customer_name: formData.fullName,
+      email: formData.email,
+      phone: formData.phone,
+      shipping_address: formData.address,
+      items: cartItems,
+      subtotal: total,
+      shipping: shipping,
+      tax: tax,
+      total: totalAmount,
+      payment_method: selectedPayment,
+      status: 'pending',
+    }
+
+    // Insert into Supabase
+    const { data: insertedOrder, error } = await supabase
+      .from('orders')
+      .insert(order)
+      .select()
+
+    if (error) {
+      console.error('Supabase insert error:', error)
+      throw error
+    }
+
+    // Send order confirmation email via API route
+    try {
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(insertedOrder[0]),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        setEmailStatus('error')
+        console.error('Email send error:', errorData.message)
+      } else {
+        setEmailStatus('success')
+      }
+    } catch (emailError) {
+      setEmailStatus('error')
+      console.error('Error calling email API route:', emailError)
+    }
+
+    // Clear cart and redirect
+    localStorage.removeItem('cart')
+    // After inserting order
+    if (emailError || response.status >= 400) {
+      router.push('/thank-you?emailStatus=error')
+    } else {
+      router.push('/thank-you?emailStatus=success')
+    }
+    
+  } catch (error) {
+    console.error('Order submission failed:', error)
+    alert('Order failed: ' + error.message)
+  } finally {
+    setIsProcessing(false)
+    setShowModal(false)
   }
+}
 
   return (
     <div className={styles.checkoutContainer}>
