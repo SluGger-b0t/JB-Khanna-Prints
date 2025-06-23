@@ -17,16 +17,9 @@ const Navbar = () => {
               <div className="main-logo flex flex-col items-center justify-center">
                 <a href="/" className="block flex justify-center">
                   <img
-                    src="images/main-logo (2).png"
+                    src="/images/logotm.png"
                     alt="logo"
-                    className="h-12 w-auto"
-                  />
-                </a>
-                <a href="/" className="block flex justify-center mt-2">
-                  <img
-                    src="images/second-logo.png"
-                    alt="logo"
-                    className="h-6 w-auto"
+                    className="h-22 w-auto"
                   />
                 </a>
               </div>
@@ -91,13 +84,13 @@ const Navbar = () => {
                       href="/product/category2"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-[#426969] hover:text-white"
                     >
-                      Gift Items 
+                      Gift Items
                     </a>
                     <a
-                      href="/product/category3"
+                      href="/product/"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-[#426969] hover:text-white"
                     >
-                      JBK Premium 
+                      JBK Premium
                     </a>
                   </div>
                 </li>
@@ -203,14 +196,14 @@ const Navbar = () => {
                               className="block hover:text-black text-[#f7e0ab] transition-colors font-medium curvy-subheading"
                               onClick={() => setMenuOpen(false)}
                             >
-                              Gift Items 
+                              Gift Items
                             </a>
                             <a
                               href="/product"
                               className="block hover:text-black text-[#f7e0ab] transition-colors font-medium curvy-subheading"
                               onClick={() => setMenuOpen(false)}
                             >
-                              JBK premium 
+                              JBK premium
                             </a>
                           </div>
                         )}

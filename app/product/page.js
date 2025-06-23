@@ -16,13 +16,19 @@ async function getProducts() {
       category,
       price,
       description,
-      "imageUrl": image.asset->url,
+      "image": image.asset,
       product_id
     }
   `)
 
+  // Generate image URLs for each product
+  const productsWithUrls = products.map((product) => ({
+    ...product,
+    image: urlFor(product.image).url(),
+  }))
+
   // Group products by category
-  const productsByCategory = products.reduce((acc, product) => {
+  const productsByCategory = productsWithUrls.reduce((acc, product) => {
     const category = product.category || 'uncategorized'
     if (!acc[category]) {
       acc[category] = []

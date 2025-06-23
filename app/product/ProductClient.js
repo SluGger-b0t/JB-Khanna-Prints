@@ -1,21 +1,51 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import './style.css'
 
 const ProductClient = ({ products }) => {
+  // Filter out premium category
+  const filteredProducts = Object.entries(products).reduce(
+    (acc, [category, items]) => {
+      if (category.trim().toLowerCase() !== 'premium') {
+        acc[category] = items
+      }
+      return acc
+    },
+    {}
+  )
+
   const [activeSection, setActiveSection] = useState(
-    Object.keys(products)[0] || 'religious'
+    Object.keys(filteredProducts)[0] || 'religious'
   )
   const [cart, setCart] = useState([])
   const [showCart, setShowCart] = useState(false)
+  const [toast, setToast] = useState(null)
   const router = useRouter()
+  const cartButtonRef = useRef(null)
+  const [footerVisible, setFooterVisible] = useState(false)
 
   useEffect(() => {
     // Load cart from localStorage on mount
     const savedCart = localStorage.getItem('cart')
     if (savedCart) setCart(JSON.parse(savedCart))
+  }, [])
+
+  useEffect(() => {
+    const footer = document.querySelector('footer')
+    if (!footer) return
+    const observer = new window.IntersectionObserver(
+      ([entry]) => {
+        setFooterVisible(entry.isIntersecting)
+      },
+      {
+        root: null,
+        threshold: 0.01,
+      }
+    )
+    observer.observe(footer)
+    return () => observer.disconnect()
   }, [])
 
   const handleAddToCart = (product) => {
@@ -65,7 +95,7 @@ const ProductClient = ({ products }) => {
     >
       <div className="relative">
         <img
-          src={product.imageUrl}
+          src={product.image}
           alt={product.name}
           className="w-full h-48 sm:h-56 lg:h-64 object-contain"
         />
@@ -97,12 +127,34 @@ const ProductClient = ({ products }) => {
     </div>
   )
 
+  // Show toast for 2 seconds
+  const showToast = (message) => {
+    setToast(message)
+    setTimeout(() => setToast(null), 2000)
+  }
+
+  // Modified cart button click handler
+  const handleCartButtonClick = () => {
+    if (cart.length === 0) {
+      showToast('Cart is empty')
+    } else {
+      setShowCart(true)
+    }
+  }
+
   return (
     <div className="bg-[url('/images/texture-background.jpg')] bg-repeat pt-20 font-quicksand">
+      {/* Toast Notification */}
+      {toast && (
+        <div className="fixed top-8 left-1/2 transform -translate-x-1/2 bg-[#2f4f4f] text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-all">
+          {toast}
+        </div>
+      )}
       {/* Floating Cart Button */}
       <button
-        onClick={() => setShowCart(true)}
-        className="fixed bottom-8 right-8 bg-[#2f4f4f] text-white p-4 rounded-full shadow-lg hover:bg-[#f7e0ab] hover:text-[#2f4f4f] transition-colors z-40"
+        ref={cartButtonRef}
+        onClick={handleCartButtonClick}
+        className={`fixed right-8 bg-[#2f4f4f] text-white p-4 rounded-full shadow-lg hover:bg-[#f7e0ab] hover:text-[#2f4f4f] transition-colors z-40 ${footerVisible ? 'bottom-32' : 'bottom-8'}`}
       >
         <div className="relative">
           <svg
@@ -149,42 +201,124 @@ const ProductClient = ({ products }) => {
                   Your cart is empty
                 </p>
               ) : (
-                <div className="space-y-4">
-                  {cart.map((item) => (
-                    <div
-                      key={item._id}
-                      className="flex items-center space-x-4 p-2 bg-gray-50 rounded-lg"
-                    >
-                      <img
-                        src={item.imageUrl}
-                        alt={item.name}
-                        className="w-16 h-16 object-contain"
-                      />
-                      <div className="flex-grow">
-                        <h3 className="text-sm font-medium text-[#2f4f4f]">
-                          {item.name}
-                        </h3>
-                        <p className="text-sm text-[#2f4f4f]/70">
-                          ₹{item.price}
-                        </p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => handleQuantityChange(item.name, -1)}
-                          className="px-2 py-1 bg-[#2f4f4f] text-white rounded hover:bg-[#f7e0ab] hover:text-[#2f4f4f]"
-                        >
-                          -
-                        </button>
-                        <span className="text-[#2f4f4f]">{item.quantity}</span>
-                        <button
-                          onClick={() => handleQuantityChange(item.name, 1)}
-                          className="px-2 py-1 bg-[#2f4f4f] text-white rounded hover:bg-[#f7e0ab] hover:text-[#2f4f4f]"
-                        >
-                          +
-                        </button>
+                <div className="space-y-6">
+                  {/* Premium Products Section */}
+                  {cart.some(
+                    (item) => item.category?.trim().toLowerCase() === 'premium'
+                  ) && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-[#2f4f4f] mb-4">
+                        Premium Products
+                      </h3>
+                      <div className="space-y-4">
+                        {cart
+                          .filter(
+                            (item) =>
+                              item.category?.trim().toLowerCase() === 'premium'
+                          )
+                          .map((item) => (
+                            <div
+                              key={item._id}
+                              className="flex items-center space-x-4 p-2 bg-gray-50 rounded-lg"
+                            >
+                              <img
+                                src={item.image}
+                                alt={item.name}
+                                className="w-16 h-16 object-contain"
+                              />
+                              <div className="flex-grow">
+                                <h3 className="text-sm font-medium text-[#2f4f4f]">
+                                  {item.name}
+                                </h3>
+                                <p className="text-sm text-[#2f4f4f]/70">
+                                  ₹{item.price}
+                                </p>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <button
+                                  onClick={() =>
+                                    handleQuantityChange(item.name, -1)
+                                  }
+                                  className="px-2 py-1 bg-[#2f4f4f] text-white rounded hover:bg-[#f7e0ab] hover:text-[#2f4f4f]"
+                                >
+                                  -
+                                </button>
+                                <span className="text-[#2f4f4f]">
+                                  {item.quantity}
+                                </span>
+                                <button
+                                  onClick={() =>
+                                    handleQuantityChange(item.name, 1)
+                                  }
+                                  className="px-2 py-1 bg-[#2f4f4f] text-white rounded hover:bg-[#f7e0ab] hover:text-[#2f4f4f]"
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+                          ))}
                       </div>
                     </div>
-                  ))}
+                  )}
+
+                  {/* Regular Products Section */}
+                  {cart.some(
+                    (item) => item.category?.trim().toLowerCase() !== 'premium'
+                  ) && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-[#2f4f4f] mb-4">
+                        Regular Products
+                      </h3>
+                      <div className="space-y-4">
+                        {cart
+                          .filter(
+                            (item) =>
+                              item.category?.trim().toLowerCase() !== 'premium'
+                          )
+                          .map((item) => (
+                            <div
+                              key={item._id}
+                              className="flex items-center space-x-4 p-2 bg-gray-50 rounded-lg"
+                            >
+                              <img
+                                src={item.image}
+                                alt={item.name}
+                                className="w-16 h-16 object-contain"
+                              />
+                              <div className="flex-grow">
+                                <h3 className="text-sm font-medium text-[#2f4f4f]">
+                                  {item.name}
+                                </h3>
+                                <p className="text-sm text-[#2f4f4f]/70">
+                                  ₹{item.price}
+                                </p>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <button
+                                  onClick={() =>
+                                    handleQuantityChange(item.name, -1)
+                                  }
+                                  className="px-2 py-1 bg-[#2f4f4f] text-white rounded hover:bg-[#f7e0ab] hover:text-[#2f4f4f]"
+                                >
+                                  -
+                                </button>
+                                <span className="text-[#2f4f4f]">
+                                  {item.quantity}
+                                </span>
+                                <button
+                                  onClick={() =>
+                                    handleQuantityChange(item.name, 1)
+                                  }
+                                  className="px-2 py-1 bg-[#2f4f4f] text-white rounded hover:bg-[#f7e0ab] hover:text-[#2f4f4f]"
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -223,29 +357,6 @@ const ProductClient = ({ products }) => {
               Each piece is thoughtfully curated to add charm and character to
               any space.
             </p>
-            <div className="flex justify-center mt-8">
-              <a
-                href="Canvaspainting.pdf"
-                download
-                className="inline-flex items-center px-6 py-3 bg-[#2f4f4f] text-white rounded-lg hover:bg-[#f7e0ab] hover:text-[#2f4f4f] transition-colors text-sm sm:text-base lg:text-lg font-medium"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-2"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
-                Download Brochure
-              </a>
-            </div>
           </div>
 
           {/* Mobile Category Dropdown */}
@@ -259,7 +370,7 @@ const ProductClient = ({ products }) => {
               value={activeSection}
               onChange={(e) => setActiveSection(e.target.value)}
             >
-              {Object.keys(products).map((category) => (
+              {Object.keys(filteredProducts).map((category) => (
                 <option key={category} value={category}>
                   {category}
                 </option>
@@ -272,7 +383,7 @@ const ProductClient = ({ products }) => {
             <div className="hidden lg:block w-64 flex-shrink-0 pr-4 border-r border-gray-200">
               <nav className="sticky top-24">
                 <ul className="space-y-2">
-                  {Object.keys(products).map((category) => (
+                  {Object.keys(filteredProducts).map((category) => (
                     <li key={category}>
                       <button
                         className={`section-btn w-full text-left px-4 py-2 rounded-lg ${
@@ -292,21 +403,23 @@ const ProductClient = ({ products }) => {
 
             <div className="flex-grow lg:pl-8">
               {/* Section content */}
-              {Object.entries(products).map(([category, categoryProducts]) => (
-                <div
-                  key={category}
-                  className={`section-content ${activeSection === category ? 'active' : 'hidden'}`}
-                  id={`${category}-section`}
-                >
-                  <h2 className="text-xl sm:text-2xl md:text-3xl xl:text-4xl font-cormorant-garamond font-semibold text-[#2f4f4f] mb-4 lg:mb-6 leading-tight">
-                    {category}
-                  </h2>
-                  {/* Products Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
-                    {categoryProducts.map(renderProductCard)}
+              {Object.entries(filteredProducts).map(
+                ([category, categoryProducts]) => (
+                  <div
+                    key={category}
+                    className={`section-content ${activeSection === category ? 'active' : 'hidden'}`}
+                    id={`${category}-section`}
+                  >
+                    <h2 className="text-xl sm:text-2xl md:text-3xl xl:text-4xl font-cormorant-garamond font-semibold text-[#2f4f4f] mb-4 lg:mb-6 leading-tight">
+                      {category}
+                    </h2>
+                    {/* Products Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
+                      {categoryProducts.map(renderProductCard)}
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              )}
             </div>
           </div>
         </div>

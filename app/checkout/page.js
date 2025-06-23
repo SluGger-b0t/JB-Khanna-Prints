@@ -8,7 +8,6 @@ const CheckoutPage = () => {
   const [cartItems, setCartItems] = useState([])
   const [total, setTotal] = useState(0)
   const [showModal, setShowModal] = useState(false)
-  const [emailStatus, setEmailStatus] = useState(null) // 'success' | 'error' | null
   const [selectedPayment, setSelectedPayment] = useState('virtual')
   const [isProcessing, setIsProcessing] = useState(false)
   const [formData, setFormData] = useState({
@@ -16,9 +15,7 @@ const CheckoutPage = () => {
     email: '',
     phone: '',
     address: '',
-    city: '',
-    state: '',
-    pincode: '',
+    deliveryPincode: '',
   })
   const router = useRouter()
 
@@ -41,9 +38,14 @@ const CheckoutPage = () => {
     const savedCart = localStorage.getItem('cart')
     if (savedCart) {
       const parsedCart = JSON.parse(savedCart)
-      setCartItems(parsedCart)
+      // Ensure each item has the correct image URL
+      const processedCart = parsedCart.map((item) => ({
+        ...item,
+        image: item.image || item.imageUrl, // Handle both image and imageUrl properties
+      }))
+      setCartItems(processedCart)
       // Calculate total directly from the numeric price values
-      const total = parsedCart.reduce(
+      const total = processedCart.reduce(
         (sum, item) => sum + item.price * item.quantity,
         0
       )
@@ -64,87 +66,95 @@ const CheckoutPage = () => {
     setShowModal(true)
   }
 
-const handleConfirmPay = async () => {
-  setIsProcessing(true)
+  const handleConfirmPay = async () => {
+    setIsProcessing(true)
 
-  try {
-    // Get current session
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) {
-      throw new Error('Session not available')
-    }
-
-    // Calculate order values
-    const shipping = 100
-    const tax = total * 0.18
-    const totalAmount = total + shipping + tax
-
-    // Create order object
-    const order = {
-      user_id: session.user.id,
-      customer_name: formData.fullName,
-      email: formData.email,
-      phone: formData.phone,
-      shipping_address: formData.address,
-      items: cartItems,
-      subtotal: total,
-      shipping: shipping,
-      tax: tax,
-      total: totalAmount,
-      payment_method: selectedPayment,
-      status: 'pending',
-    }
-
-    // Insert into Supabase
-    const { data: insertedOrder, error } = await supabase
-      .from('orders')
-      .insert(order)
-      .select()
-
-    if (error) {
-      console.error('Supabase insert error:', error)
-      throw error
-    }
-
-    // Send order confirmation email via API route
     try {
-      const response = await fetch('/api/send-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(insertedOrder[0]),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        setEmailStatus('error')
-        console.error('Email send error:', errorData.message)
-      } else {
-        setEmailStatus('success')
+      // Get current session
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+      if (!session) {
+        throw new Error('Session not available')
       }
-    } catch (emailError) {
-      setEmailStatus('error')
-      console.error('Error calling email API route:', emailError)
-    }
+      const userId = session?.user?.id
+      if (!userId) throw new Error('User ID not found')
 
-    // Clear cart and redirect
-    localStorage.removeItem('cart')
-    // After inserting order
-    if (emailError || response.status >= 400) {
-      router.push('/thank-you?emailStatus=error')
-    } else {
-      router.push('/thank-you?emailStatus=success')
+      // Calculate order values
+      const shipping = 100
+      const tax = total * 0.18
+      const totalAmount = total + shipping + tax
+
+      // Create order object
+      const order = {
+        customer_name: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        shipping_address: formData.address,
+        user_id: userId,
+        total: total + 100 + total * 0.18,
+        payment_method: selectedPayment,
+        status: 'pending',
+        items: cartItems.map((item) => ({
+          name: item.name,
+          category: item.category || 'General',
+          product_id: item.product_id || '',
+          description: item.description || '',
+          price: item.price,
+          quantity: item.quantity,
+          image: item.image || '',
+        })),
+        shipping: 100,
+        tax: total * 0.18,
+        subtotal: total,
+      }
+
+      // Insert into Supabase
+      const { data: insertedOrder, error } = await supabase
+        .from('orders')
+        .insert(order)
+        .select()
+
+      if (error) {
+        console.error('Supabase insert error:', error)
+        throw error
+      }
+
+      // Send confirmation email
+      let emailStatus = 'success'
+      try {
+        await fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(order),
+        })
+      } catch (e) {
+        emailStatus = 'error'
+      }
+
+      // Clear cart and redirect
+      localStorage.removeItem('cart')
+      router.push(`/thank-you?emailStatus=${emailStatus}`)
+    } catch (error) {
+      console.error('Order submission failed:', error)
+      alert('Order failed: ' + error.message)
+    } finally {
+      setIsProcessing(false)
+      setShowModal(false)
     }
-    
-  } catch (error) {
-    console.error('Order submission failed:', error)
-    alert('Order failed: ' + error.message)
-  } finally {
-    setIsProcessing(false)
-    setShowModal(false)
   }
-}
+
+  // Add handler for box info fields per cart item
+  const handleBoxInfoChange = (index, field, value) => {
+    setCartItems((prev) => {
+      const updated = [...prev]
+      updated[index] = {
+        ...updated[index],
+        [field]: value,
+      }
+      return updated
+    })
+  }
 
   return (
     <div className={styles.checkoutContainer}>
@@ -210,7 +220,19 @@ const handleConfirmPay = async () => {
                   onChange={handleInputChange}
                 ></textarea>
               </div>
-
+              <div className={styles.formGroup}>
+                <label htmlFor="deliveryPincode">Delivery Pincode</label>
+                <input
+                  type="text"
+                  id="deliveryPincode"
+                  name="deliveryPincode"
+                  placeholder="Enter delivery pincode"
+                  required
+                  value={formData.deliveryPincode}
+                  onChange={handleInputChange}
+                />
+              </div>
+              {/* Per-product box info */}
               <button type="submit" className={styles.makePaymentButton}>
                 Make Payment
               </button>
@@ -228,7 +250,7 @@ const handleConfirmPay = async () => {
               {cartItems.map((item, index) => (
                 <div key={index} className={styles.cartItem}>
                   <img
-                    src={item.imageUrl}
+                    src={item.image}
                     alt={item.name}
                     className={styles.itemImage}
                   />

@@ -92,11 +92,89 @@ const AdminPage = () => {
 
       if (error) throw error
 
+      // If status is changed to "placed", call backend API to create Shipyaari order
+      if (newStatus === 'placed') {
+        const order = orders.find((o) => o.id === orderId)
+        if (order) {
+          // Map your order object to Shipyaari's expected format
+          const shipyaariOrder = mapOrderToShipyaari(order)
+          const resp = await fetch('/api/shipyaari-create-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(shipyaariOrder),
+          })
+          if (!resp.ok) {
+            const errData = await resp.json()
+            setError(
+              'Shipyaari order creation failed: ' +
+                (errData.error || 'Unknown error')
+            )
+          }
+        }
+      }
+
+      // If status is changed to "draft", call backend API to create Shipyaari draft order
+      if (newStatus === 'draft') {
+        const order = orders.find((o) => o.id === orderId)
+        if (order) {
+          const shipyaariOrder = mapOrderToShipyaari(order)
+          const resp = await fetch('/api/shipyaari-create-order?draft=1', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(shipyaariOrder),
+          })
+          if (!resp.ok) {
+            const errData = await resp.json()
+            setError(
+              'Shipyaari draft order creation failed: ' +
+                (errData.error || 'Unknown error')
+            )
+          }
+        }
+      }
+
       // Refresh orders list
       fetchOrders()
     } catch (error) {
       console.error('Error updating order status:', error)
       setError('Failed to update order status: ' + error.message)
+    }
+  }
+
+  // Helper to map your order object to Shipyaari's expected format
+  function mapOrderToShipyaari(order) {
+    // TODO: Map all required fields as per Shipyaari API docs
+    // This is a basic example, you must adjust fields as per your data and Shipyaari's requirements
+    return {
+      order_id: order.id,
+      customer_name: order.customer_name,
+      email: order.email,
+      phone: order.phone,
+      address: order.shipping_address,
+      items: order.items.map((item) => ({
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+      })),
+      total: order.total,
+      payment_method: order.payment_method,
+      // Add more fields as required by Shipyaari
+    }
+  }
+
+  // Delete order function
+  const deleteOrder = async (orderId) => {
+    if (!window.confirm('Are you sure you want to delete this order?')) return
+    try {
+      const { error } = await supabase.from('orders').delete().eq('id', orderId)
+
+      if (error) throw error
+
+      // Refresh orders after successful delete
+      fetchOrders()
+    } catch (err) {
+      setError(err.message)
+      console.error('Error deleting order:', err)
     }
   }
 
@@ -137,6 +215,7 @@ const AdminPage = () => {
               <option value="pending">Pending</option>
               <option value="placed">Placed</option>
               <option value="dispatched">Dispatched</option>
+              <option value="draft">Draft</option>
               {/* If 'cancelled' orders can exist but aren't a primary filter, you might add: */}
               {/* <option value="cancelled">Cancelled</option> */}
             </select>
@@ -236,6 +315,7 @@ const AdminPage = () => {
                         <option value="pending">Pending</option>
                         <option value="placed">Placed</option>
                         <option value="dispatched">Dispatched</option>
+                        <option value="draft">Draft</option>
                         {/* If you want to allow changing to cancelled, uncomment below */}
                         {/* <option value="cancelled">Cancelled</option> */}
                       </select>
@@ -244,6 +324,12 @@ const AdminPage = () => {
                         className={styles.viewButton}
                       >
                         View
+                      </button>
+                      <button
+                        onClick={() => deleteOrder(order.id)}
+                        className={styles.deleteButton}
+                      >
+                        Delete
                       </button>
                     </td>
                   </tr>

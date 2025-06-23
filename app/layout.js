@@ -1,10 +1,11 @@
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
-import Navbar from '@/components/Navbar'
 import { Dancing_Script } from 'next/font/google'
 import { Whisper } from 'next/font/google'
 import { Cormorant_Garamond } from 'next/font/google'
-// import { usePathname } from 'next/navigation'
+import { Footer } from '@/components/Footer'
+import ClientNavbarWrapper from '@/components/ClientNavbarWrapper'
+import React from 'react'
 
 const whisper = Whisper({
   subsets: ['latin'],
@@ -30,19 +31,60 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   title: 'JB Khanna Prints',
-  description: 'I am a Blog',
+  description:
+    'JB Khanna Prints offers premium wall art, canvas paintings, and home decor. Discover unique designs to elevate your space.',
+  keywords: [
+    'wall art',
+    'canvas paintings',
+    'home decor',
+    'art prints',
+    'modern art',
+    'JB Khanna',
+    'buy art online',
+    'premium prints',
+    'interior design',
+    'unique wall decor',
+  ],
+  openGraph: {
+    title: 'JB Khanna Prints',
+    description:
+      'Premium wall art and canvas paintings for your home. Shop unique designs at JB Khanna Prints.',
+    url: 'https://jbkhannaprints.in',
+    siteName: 'JB Khanna Prints',
+    images: [
+      {
+        url: '/public/images/main-banner1.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'JB Khanna Prints Wall Art',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'JB Khanna Prints',
+    description:
+      'Premium wall art and canvas paintings for your home. Shop unique designs at JB Khanna Prints.',
+    site: '@jbkhannaprints',
+    images: ['/public/images/main-banner1.jpg'],
+  },
+  metadataBase: new URL('https://jbkhannaprints.in'),
 }
 
 export default function RootLayout({ children }) {
-  // Hide Navbar on /checkout
-  const pathname = typeof window !== 'undefined' ? window.location.pathname : ''
-  const hideNavbar = pathname.startsWith('/checkout')
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/favicon.png" sizes="any" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+        <link rel="canonical" href="https://jbkhannaprints.in" />
+      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${whisper.variable} ${cormorant.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${whisper.variable} ${cormorant.variable} antialiased pt-20`}
       >
-        {!hideNavbar && <Navbar />}
+        <ClientNavbarWrapper />
         {children}
       </body>
     </html>

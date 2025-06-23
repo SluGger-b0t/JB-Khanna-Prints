@@ -28,7 +28,7 @@ const Home = () => {
   }, [])
 
   return (
-    <div className="bg-[url('/images/texture-background.jpg')] bg-repeat pt-20 font-quicksand">
+    <div className="bg-[url('/images/texture-background.jpg')] bg-repeat font-quicksand">
       <section id="billboard" className="py-16">
         <div className="container mx-auto px-4">
           <div className="swiper main-slider">
@@ -315,7 +315,7 @@ const Home = () => {
             <div className="grid md:grid-cols-2 gap-8">
               <div>
                 <h2 className="whisper-heading text-[#2f4f4f] heading-underline">
-                  Subscribe to our newsletter
+                  Enquire Now
                 </h2>
               </div>
               <div>
@@ -339,7 +339,7 @@ const Home = () => {
           </div>
         </div>
       </section>
-
+      {/* Footer Bottom */}
       <footer id="footer" className="bg-[#2f4f4f] text-[#f7e0ab] py-12">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-8">
@@ -373,7 +373,6 @@ const Home = () => {
         </div>
       </footer>
 
-      {/* Footer Bottom */}
       <div id="footer-bottom" className="bg-[#2f4f4fe6] py-6">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
