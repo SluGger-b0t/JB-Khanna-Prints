@@ -1,0 +1,17 @@
+{
+  "name": "studio",
+  "version": "1.0.0",
+  "main": "env.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@sanity/vision": "^3.92.0",
+    "sanity": "^3.92.0",
+    "styled-components": "^6.1.19"
+  }
+}
