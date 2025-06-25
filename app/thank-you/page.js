@@ -1,6 +1,6 @@
 // app/thank-you/page.js
 import React, { Suspense } from 'react'
-import ThankYouClient from './thankyouclient'
+import ThankYouClient from './ThankYouClient'
 
 export default function ThankYouPage() {
   return (
