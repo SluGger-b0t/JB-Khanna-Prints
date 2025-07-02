@@ -389,19 +389,33 @@ const PremiumPage = () => {
                       key={item._id}
                       className="flex items-center space-x-4 p-2 bg-gray-50 rounded-lg"
                     >
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-16 h-16 object-contain"
-                      />
+                      <Link
+                        href={`/products/${item.product_id?.current || item.product_id || item._id}`}
+                        className="flex-shrink-0"
+                      >
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="w-16 h-16 object-contain cursor-pointer"
+                        />
+                      </Link>
                       <div className="flex-grow">
-                        <h3 className="text-sm font-medium text-[#2f4f4f]">
+                        <Link
+                          href={`/products/${item.product_id?.current || item.product_id || item._id}`}
+                          className="text-sm font-medium text-[#2f4f4f] hover:underline cursor-pointer block"
+                        >
                           {item.name}
-                        </h3>
+                        </Link>
                         <p className="text-sm text-[#2f4f4f]/70">
                           ₹{item.price}
                         </p>
                       </div>
+                      <button
+                        onClick={() => handleAddToCart(item)}
+                        className="px-2 py-1 bg-[#2f4f4f] text-white rounded hover:bg-[#f7e0ab] hover:text-[#2f4f4f] mr-2"
+                      >
+                        Add to Cart
+                      </button>
                       <button
                         onClick={() => handleWishlistToggle(item)}
                         className="px-2 py-1 bg-[#e63946] text-white rounded hover:bg-[#f7e0ab] hover:text-[#2f4f4f]"
