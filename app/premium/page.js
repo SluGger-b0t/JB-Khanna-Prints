@@ -8,6 +8,7 @@ import { Toaster, toast } from 'react-hot-toast'
 import 'react-toastify/dist/ReactToastify.css'
 import { useRouter } from 'next/navigation'
 import ReactDOM from 'react-dom'
+import { FaHeart, FaRegHeart } from 'react-icons/fa'
 
 // Portal component for dropdown
 function DropdownPortal({ children, position, onClose }) {
@@ -55,6 +56,8 @@ const PremiumPage = () => {
   const router = useRouter()
   const [dropdownPosition, setDropdownPosition] = useState(null)
   const categoryButtonRefs = useRef({})
+  const [wishlist, setWishlist] = useState([])
+  const [showWishlist, setShowWishlist] = useState(false)
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -103,6 +106,9 @@ const PremiumPage = () => {
     if (savedCart) {
       setCart(JSON.parse(savedCart))
     }
+    // Load wishlist from localStorage on mount
+    const savedWishlist = localStorage.getItem('wishlist')
+    if (savedWishlist) setWishlist(JSON.parse(savedWishlist))
   }, [])
 
   const handleAddToCart = (product) => {
@@ -205,6 +211,23 @@ const PremiumPage = () => {
       </div>
     </div>
   )
+
+  const handleWishlistToggle = (product) => {
+    setWishlist((prev) => {
+      const exists = prev.some((item) => item._id === product._id)
+      let newWishlist
+      if (exists) {
+        newWishlist = prev.filter((item) => item._id !== product._id)
+      } else {
+        newWishlist = [...prev, product]
+      }
+      localStorage.setItem('wishlist', JSON.stringify(newWishlist))
+      return newWishlist
+    })
+  }
+
+  const isWishlisted = (product) =>
+    wishlist.some((item) => item._id === product._id)
 
   // Filter products by category and subcategory
   const filteredProducts = products.filter((product) => {
@@ -324,6 +347,76 @@ const PremiumPage = () => {
         </div>
       )}
 
+      {/* Floating Wishlist Button */}
+      <button
+        onClick={() => setShowWishlist(true)}
+        className={`fixed right-8 bg-white text-[#e63946] p-4 rounded-full shadow-lg hover:bg-[#f7e0ab] hover:text-[#2f4f4f] transition-colors z-40 bottom-24`}
+        style={{ border: '2px solid #e63946' }}
+        aria-label="View wishlist"
+      >
+        <FaHeart className="w-6 h-6" />
+        {wishlist.length > 0 && (
+          <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+            {wishlist.length}
+          </span>
+        )}
+      </button>
+
+      {/* Wishlist Side Panel */}
+      {showWishlist && (
+        <div className="fixed top-0 right-0 w-full md:w-96 h-full bg-white shadow-lg z-50 transform transition-transform duration-300 ease-in-out">
+          <div className="p-4 h-full flex flex-col">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-[#2f4f4f]">
+                Your Wishlist
+              </h2>
+              <button
+                onClick={() => setShowWishlist(false)}
+                className="text-[#2f4f4f] hover:text-[#f7e0ab]"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="flex-grow overflow-y-auto">
+              {wishlist.length === 0 ? (
+                <p className="text-center text-[#2f4f4f]/70">
+                  No items in wishlist
+                </p>
+              ) : (
+                <div className="space-y-4">
+                  {wishlist.map((item) => (
+                    <div
+                      key={item._id}
+                      className="flex items-center space-x-4 p-2 bg-gray-50 rounded-lg"
+                    >
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-16 h-16 object-contain"
+                      />
+                      <div className="flex-grow">
+                        <h3 className="text-sm font-medium text-[#2f4f4f]">
+                          {item.name}
+                        </h3>
+                        <p className="text-sm text-[#2f4f4f]/70">
+                          ₹{item.price}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => handleWishlistToggle(item)}
+                        className="px-2 py-1 bg-[#e63946] text-white rounded hover:bg-[#f7e0ab] hover:text-[#2f4f4f]"
+                      >
+                        <FaHeart className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero Section */}
       <section className="relative h-[60vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#2f4f4f] to-[#426969] opacity-95"></div>
@@ -435,6 +528,21 @@ const PremiumPage = () => {
                     alt={product.name}
                     className="w-full h-48 sm:h-56 lg:h-64 object-contain"
                   />
+                  <button
+                    onClick={() => handleWishlistToggle(product)}
+                    className="absolute top-2 left-2 z-10 bg-white/80 rounded-full p-2 hover:bg-[#f7e0ab] transition-colors"
+                    aria-label={
+                      isWishlisted(product)
+                        ? 'Remove from wishlist'
+                        : 'Add to wishlist'
+                    }
+                  >
+                    {isWishlisted(product) ? (
+                      <FaHeart className="text-[#e63946] w-5 h-5" />
+                    ) : (
+                      <FaRegHeart className="text-[#2f4f4f] w-5 h-5" />
+                    )}
+                  </button>
                   <div className="absolute top-2 right-2">
                     <span className="bg-[#f7e0ab] px-2 py-1 rounded-full text-[#2f4f4f] text-xs sm:text-sm">
                       New
