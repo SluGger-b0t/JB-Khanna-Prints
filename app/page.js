@@ -351,7 +351,7 @@ const Home = () => {
               />
               <p className="text-[#f7e0abcc]">
                 Contact Person: Mr. Sanjay Khanna <br />
-                Mobile: +91 9840077936 | +91 9944505220 <br />
+                Mobile: +91 97907 87828 | +91 90031 03849 <br />
                 Email: info@jbkhannaprints.in <br />
                 <br />
                 Address: <br />
