@@ -9,15 +9,18 @@ import React from 'react'
 
 const whisper = Whisper({
   subsets: ['latin'],
-  weight: ['400'], // Adjust weights as needed
+  weight: '400', // use as string, not array
   variable: '--font-whisper',
+  display: 'swap',
 })
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'], // adjust as needed
+  weight: ['400', '500', '600', '700'], // ✅ only use supported weights
   variable: '--font-cormorant',
+  display: 'swap',
 })
+
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -86,6 +89,7 @@ export default function RootLayout({ children }) {
       >
         <ClientNavbarWrapper />
         {children}
+        <Footer />
       </body>
     </html>
   )

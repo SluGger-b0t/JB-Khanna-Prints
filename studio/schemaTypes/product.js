@@ -9,6 +9,16 @@ const product = {
       type: 'string',
     },
     {
+      name: 'subcategory',
+      title: 'Subcategory',
+      type: 'string',
+    },
+    {
+      name: 'collection',
+      title: 'Collection',
+      type: 'string',
+    },
+    {
       name: 'name',
       title: 'Product Name',
       type: 'string',

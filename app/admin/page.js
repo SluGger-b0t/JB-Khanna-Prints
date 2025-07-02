@@ -7,7 +7,13 @@ import { supabase } from '../../lib/supabaseClient' // Your actual Supabase clie
 
 import styles from './admin.module.css'
 
+const ADMIN_PASSWORD = 'jbprints'
+
 const AdminPage = () => {
+  const [authenticated, setAuthenticated] = useState(false)
+  const [passwordInput, setPasswordInput] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -15,6 +21,14 @@ const AdminPage = () => {
   // Updated status filter options
   const [statusFilter, setStatusFilter] = useState('all')
   const router = useRouter()
+
+  useEffect(() => {
+    // Check sessionStorage for authentication
+    if (typeof window !== 'undefined') {
+      const isAuthed = sessionStorage.getItem('adminAuthed') === 'true'
+      setAuthenticated(isAuthed)
+    }
+  }, [])
 
   useEffect(() => {
     fetchOrders()
@@ -176,6 +190,89 @@ const AdminPage = () => {
       setError(err.message)
       console.error('Error deleting order:', err)
     }
+  }
+
+  const handlePasswordSubmit = (e) => {
+    e.preventDefault()
+    if (passwordInput === ADMIN_PASSWORD) {
+      setAuthenticated(true)
+      setPasswordError('')
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('adminAuthed', 'true')
+      }
+    } else {
+      setPasswordError('Incorrect password')
+    }
+  }
+
+  if (!authenticated) {
+    return (
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(47, 79, 79, 0.97)',
+          zIndex: 99999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'column',
+        }}
+      >
+        <form
+          onSubmit={handlePasswordSubmit}
+          style={{
+            background: 'white',
+            padding: '2rem 2.5rem',
+            borderRadius: '1rem',
+            boxShadow: '0 4px 32px rgba(0,0,0,0.15)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            minWidth: 320,
+          }}
+        >
+          <h2 style={{ color: '#2f4f4f', marginBottom: 24 }}>Admin Access</h2>
+          <input
+            type="password"
+            placeholder="Enter admin password"
+            value={passwordInput}
+            onChange={(e) => setPasswordInput(e.target.value)}
+            style={{
+              padding: '0.75rem 1rem',
+              borderRadius: 8,
+              border: '1px solid #ccc',
+              marginBottom: 16,
+              width: '100%',
+              fontSize: 16,
+            }}
+            autoFocus
+          />
+          {passwordError && (
+            <div style={{ color: 'red', marginBottom: 12 }}>
+              {passwordError}
+            </div>
+          )}
+          <button
+            type="submit"
+            style={{
+              background: '#2f4f4f',
+              color: 'white',
+              padding: '0.75rem 2rem',
+              border: 'none',
+              borderRadius: 8,
+              fontSize: 16,
+              cursor: 'pointer',
+            }}
+          >
+            Access Admin
+          </button>
+        </form>
+      </div>
+    )
   }
 
   if (loading) {

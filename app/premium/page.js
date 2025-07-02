@@ -1,66 +1,103 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { client } from '@/sanity/lib/client'
-import { ToastContainer, toast } from 'react-toastify'
+import { Toaster, toast } from 'react-hot-toast'
 import 'react-toastify/dist/ReactToastify.css'
 import { useRouter } from 'next/navigation'
+import ReactDOM from 'react-dom'
+
+// Portal component for dropdown
+function DropdownPortal({ children, position, onClose }) {
+  const portalRef = useRef(null)
+
+  useEffect(() => {
+    function handleClick(event) {
+      if (portalRef.current && !portalRef.current.contains(event.target)) {
+        onClose()
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [onClose])
+
+  if (!position) return null
+  return ReactDOM.createPortal(
+    <div
+      ref={portalRef}
+      style={{
+        position: 'absolute',
+        top: position.top,
+        left: position.left,
+        width: 192, // w-48
+        zIndex: 9999,
+      }}
+      className="bg-white border border-[#2f4f4f]/20 rounded shadow-lg"
+    >
+      {children}
+    </div>,
+    document.body
+  )
+}
 
 const PremiumPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('all')
+  const [selectedSubcategory, setSelectedSubcategory] = useState('all')
+  const [expandedCategory, setExpandedCategory] = useState(null)
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [cart, setCart] = useState([])
   const [showCart, setShowCart] = useState(false)
+  const [categories, setCategories] = useState([])
+  const [subcategoriesByCategory, setSubcategoriesByCategory] = useState({})
   const router = useRouter()
+  const [dropdownPosition, setDropdownPosition] = useState(null)
+  const categoryButtonRefs = useRef({})
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        // First, let's check all products to see what categories exist
-        const allProductsQuery = `*[_type == "product"] {
+        // Fetch all premium products with category and subcategory
+        const query = `*[_type == "product" && (collection match "premium" || collection match "Premium")] {
           _id,
           name,
           category,
+          subcategory,
           description,
           price,
           "image": image.asset->url,
           product_id
         }`
-
-        const allProducts = await client.fetch(allProductsQuery)
-        console.log('All products:', allProducts)
-
-        // Let's check what categories exist in the products
-        const categories = [...new Set(allProducts.map((p) => p.category))]
-        console.log('Available categories:', categories)
-
-        // Now fetch premium products - trying both exact match and case-insensitive
-        const query = `*[_type == "product" && (category match "premium" || category match "Premium")] {
-          _id,
-          name,
-          category,
-          description,
-          price,
-          "image": image.asset->url,
-          product_id
-        }`
-
         const productsData = await client.fetch(query)
-        console.log('Premium products:', productsData)
-
         setProducts(productsData)
+
+        // Build categories and subcategories
+        const categorySet = new Set()
+        const subcatMap = {}
+        productsData.forEach((p) => {
+          if (p.category) {
+            categorySet.add(p.category)
+            if (!subcatMap[p.category]) subcatMap[p.category] = new Set()
+            if (p.subcategory) subcatMap[p.category].add(p.subcategory)
+          }
+        })
+        const categoriesArr = ['all', ...Array.from(categorySet)]
+        setCategories(categoriesArr)
+        // Convert subcatMap values to arrays
+        const subcatObj = {}
+        Object.keys(subcatMap).forEach((cat) => {
+          subcatObj[cat] = Array.from(subcatMap[cat])
+        })
+        setSubcategoriesByCategory(subcatObj)
       } catch (error) {
         console.error('Error fetching products:', error)
       } finally {
         setLoading(false)
       }
     }
-
     fetchProducts()
-
     // Load cart from localStorage on mount
     const savedCart = localStorage.getItem('cart')
     if (savedCart) {
@@ -169,17 +206,16 @@ const PremiumPage = () => {
     </div>
   )
 
-  const categories = [
-    { id: 'all', name: 'All Collections' },
-    { id: 'religious', name: 'Religious Art' },
-    { id: 'holographic', name: 'Holographic' },
-    { id: 'gold-foil', name: 'Gold Foil' },
-  ]
-
-  const filteredProducts =
-    selectedCategory === 'all'
-      ? products
-      : products.filter((product) => product.category === selectedCategory)
+  // Filter products by category and subcategory
+  const filteredProducts = products.filter((product) => {
+    if (selectedCategory === 'all') return true
+    if (selectedSubcategory === 'all')
+      return product.category === selectedCategory
+    return (
+      product.category === selectedCategory &&
+      product.subcategory === selectedSubcategory
+    )
+  })
 
   if (loading) {
     return (
@@ -242,26 +278,24 @@ const PremiumPage = () => {
                 </p>
               ) : (
                 <div className="space-y-4">
-                  {premiumItems.length > 0 && (
-                    <div>
+                  {/* Group cart items by collection */}
+                  {Object.entries(
+                    cart.reduce((acc, item) => {
+                      const collection = item.collection || 'Other'
+                      if (!acc[collection]) acc[collection] = []
+                      acc[collection].push(item)
+                      return acc
+                    }, {})
+                  ).map(([collection, items]) => (
+                    <div key={collection}>
                       <h3 className="text-md font-semibold text-[#2f4f4f] mb-2">
-                        Premium Collection
+                        {collection}
                       </h3>
-                      {premiumItems.map((item) => (
+                      {items.map((item) => (
                         <CartItemPreview key={item._id} item={item} />
                       ))}
                     </div>
-                  )}
-                  {normalItems.length > 0 && (
-                    <div>
-                      <h3 className="text-md font-semibold text-[#2f4f4f] mb-2">
-                        Regular Collection
-                      </h3>
-                      {normalItems.map((item) => (
-                        <CartItemPreview key={item._id} item={item} />
-                      ))}
-                    </div>
-                  )}
+                  ))}
                 </div>
               )}
             </div>
@@ -306,23 +340,81 @@ const PremiumPage = () => {
         </div>
       </section>
 
-      {/* Categories */}
-      <section className="py-12 bg-gray-100 backdrop-blur-sm">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-wrap justify-center gap-4">
+      {/* Categories and Subcategories */}
+      <section className="py-12 bg-gray-100 backdrop-blur-sm z-30">
+        <div className="container mx-auto px-4 overflow-visible relative">
+          <div className="flex flex-wrap justify-center gap-4 mb-4">
             {categories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
-                className={`px-6 py-2 rounded-full transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105 ${
-                  selectedCategory === category.id
-                    ? 'bg-[#f7e0ab] text-[#2f4f4f]'
-                    : 'bg-[#2f4f4f]/10 text-[#2f4f4f] hover:bg-[#2f4f4f]/20'
-                }
-                }`}
-              >
-                {category.name}
-              </button>
+              <div key={category} className="relative">
+                <button
+                  ref={(el) => (categoryButtonRefs.current[category] = el)}
+                  onClick={(e) => {
+                    setSelectedCategory(category)
+                    setSelectedSubcategory('all')
+                    if (expandedCategory === category) {
+                      setExpandedCategory(null)
+                      setDropdownPosition(null)
+                    } else {
+                      setExpandedCategory(category)
+                      // Calculate position for portal dropdown
+                      const rect = e.target.getBoundingClientRect()
+                      setDropdownPosition({
+                        top: rect.bottom + window.scrollY + 8, // 8px margin
+                        left: rect.left + rect.width / 2 - 96 + window.scrollX, // center align, 96 = w-48/2
+                      })
+                    }
+                  }}
+                  className={`px-6 py-2 rounded-full transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105 ${
+                    selectedCategory === category
+                      ? 'bg-[#f7e0ab] text-[#2f4f4f]'
+                      : 'bg-[#2f4f4f]/10 text-[#2f4f4f] hover:bg-[#2f4f4f]/20'
+                  }`}
+                >
+                  {category === 'all' ? 'All Categories' : category}
+                </button>
+                {/* Subcategory dropdown as a portal */}
+                {category !== 'all' &&
+                  expandedCategory === category &&
+                  subcategoriesByCategory[category] &&
+                  subcategoriesByCategory[category].length > 0 && (
+                    <DropdownPortal
+                      position={dropdownPosition}
+                      onClose={() => {
+                        setExpandedCategory(null)
+                        setDropdownPosition(null)
+                      }}
+                    >
+                      <ul className="py-2">
+                        <li>
+                          <button
+                            className={`block w-full text-left px-4 py-2 hover:bg-[#f7e0ab]/40 ${selectedSubcategory === 'all' ? 'font-semibold text-[#2f4f4f]' : 'text-[#2f4f4f]/80'}`}
+                            onClick={() => {
+                              setSelectedSubcategory('all')
+                              setExpandedCategory(null)
+                              setDropdownPosition(null)
+                            }}
+                          >
+                            All Subcategories
+                          </button>
+                        </li>
+                        {subcategoriesByCategory[category].map((subcat) => (
+                          <li key={subcat}>
+                            <button
+                              className={`block w-full text-left px-4 py-2 hover:bg-[#f7e0ab]/40 ${selectedSubcategory === subcat ? 'font-semibold text-[#2f4f4f]' : 'text-[#2f4f4f]/80'}`}
+                              onClick={() => {
+                                setSelectedSubcategory(subcat)
+                                setExpandedCategory(null)
+                                setDropdownPosition(null)
+                              }}
+                            >
+                              {subcat}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </DropdownPortal>
+                  )}
+              </div>
             ))}
           </div>
         </div>
@@ -331,13 +423,13 @@ const PremiumPage = () => {
       {/* Products Grid */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 overflow-visible relative z-0">
             {filteredProducts.map((product) => (
               <div
                 key={product._id}
-                className="bg-white rounded-lg shadow-md overflow-hidden"
+                className="bg-white rounded-lg shadow-md overflow-hidden relative z-[1]"
               >
-                <div className="relative">
+                <div className="relative z-[1]">
                   <img
                     src={product.image}
                     alt={product.name}
@@ -475,7 +567,7 @@ const PremiumPage = () => {
           </button>
         </div>
       </section>
-      <ToastContainer />
+      <Toaster position="bottom-right" />
     </div>
   )
 }

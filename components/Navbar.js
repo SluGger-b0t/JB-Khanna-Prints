@@ -45,7 +45,7 @@ const Navbar = () => {
                 </li>
                 <li className="relative group">
                   <a
-                    href="/product"
+                    href="/"
                     className="hover:text-black text-[#f7e0ab] transition-colors font-medium curvy-subheading flex items-center"
                     onMouseEnter={() => setProductsDropdownOpen(true)}
                     onMouseLeave={() => setProductsDropdownOpen(false)}
@@ -75,19 +75,19 @@ const Navbar = () => {
                     onMouseLeave={() => setProductsDropdownOpen(false)}
                   >
                     <a
-                      href="/product/category1"
+                      href="/posters"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-[#426969] hover:text-white"
                     >
                       Posters
                     </a>
                     <a
-                      href="/product/category2"
+                      href="/gift-items"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-[#426969] hover:text-white"
                     >
                       Gift Items
                     </a>
                     <a
-                      href="/product/"
+                      href="/premium"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-[#426969] hover:text-white"
                     >
                       JBK Premium
@@ -104,7 +104,7 @@ const Navbar = () => {
                 </li>
                 <li>
                   <a
-                    href="#subscribe"
+                    href="#contact-us"
                     className="hover:text-black text-[#f7e0ab] transition-colors font-medium curvy-subheading"
                   >
                     Contact Us
@@ -185,21 +185,21 @@ const Navbar = () => {
                         {productsDropdownOpen && (
                           <div className="mt-2 ml-4 space-y-2">
                             <a
-                              href="/product"
+                              href="/posters"
                               className="block hover:text-black text-[#f7e0ab] transition-colors font-medium curvy-subheading"
                               onClick={() => setMenuOpen(false)}
                             >
                               Posters
                             </a>
                             <a
-                              href="/product"
+                              href="/gift-items"
                               className="block hover:text-black text-[#f7e0ab] transition-colors font-medium curvy-subheading"
                               onClick={() => setMenuOpen(false)}
                             >
                               Gift Items
                             </a>
                             <a
-                              href="/product"
+                              href="/premium"
                               className="block hover:text-black text-[#f7e0ab] transition-colors font-medium curvy-subheading"
                               onClick={() => setMenuOpen(false)}
                             >
@@ -220,7 +220,7 @@ const Navbar = () => {
                     </li>
                     <li>
                       <a
-                        href="#subscribe"
+                        href="#contact-us"
                         className="hover:text-black text-[#f7e0ab] transition-colors font-medium curvy-subheading"
                         onClick={() => setMenuOpen(false)}
                       >

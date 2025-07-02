@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import './style.css'
 
 const ProductClient = ({ products }) => {
@@ -112,7 +113,7 @@ const ProductClient = ({ products }) => {
         <p className="text-xs sm:text-sm lg:text-base text-[#2f4f4f]/70 mb-3 leading-relaxed">
           {product.description}
         </p>
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mb-2">
           <span className="text-lg font-semibold text-[#2f4f4f]">
             ₹{product.price}
           </span>
@@ -123,6 +124,14 @@ const ProductClient = ({ products }) => {
             Add to Cart
           </button>
         </div>
+        <Link
+          href={`/products/${
+            product.product_id?.current || product.product_id || product._id
+          }`}
+          className="block w-full mt-2 px-4 py-2 bg-[#f7e0ab] text-[#2f4f4f] text-center rounded-lg hover:bg-[#2f4f4f] hover:text-[#f7e0ab] transition-colors text-sm"
+        >
+          View Details
+        </Link>
       </div>
     </div>
   )
@@ -154,7 +163,9 @@ const ProductClient = ({ products }) => {
       <button
         ref={cartButtonRef}
         onClick={handleCartButtonClick}
-        className={`fixed right-8 bg-[#2f4f4f] text-white p-4 rounded-full shadow-lg hover:bg-[#f7e0ab] hover:text-[#2f4f4f] transition-colors z-40 ${footerVisible ? 'bottom-32' : 'bottom-8'}`}
+        className={`fixed right-8 bg-[#2f4f4f] text-white p-4 rounded-full shadow-lg hover:bg-[#f7e0ab] hover:text-[#2f4f4f] transition-colors z-40 ${
+          footerVisible ? 'bottom-32' : 'bottom-8'
+        }`}
       >
         <div className="relative">
           <svg
@@ -407,7 +418,9 @@ const ProductClient = ({ products }) => {
                 ([category, categoryProducts]) => (
                   <div
                     key={category}
-                    className={`section-content ${activeSection === category ? 'active' : 'hidden'}`}
+                    className={`section-content ${
+                      activeSection === category ? 'active' : 'hidden'
+                    }`}
                     id={`${category}-section`}
                   >
                     <h2 className="text-xl sm:text-2xl md:text-3xl xl:text-4xl font-cormorant-garamond font-semibold text-[#2f4f4f] mb-4 lg:mb-6 leading-tight">

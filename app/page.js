@@ -309,7 +309,7 @@ const Home = () => {
       </section>
 
       {/* Subscribe Section */}
-      <section id="subscribe" className="py-16">
+      <section id="contact-us" className="py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="grid md:grid-cols-2 gap-8">
