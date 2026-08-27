@@ -3,7 +3,6 @@ import React, { useState } from 'react'
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false)
-  const [productsDropdownOpen, setProductsDropdownOpen] = useState(false)
 
   return (
     <div
@@ -43,44 +42,13 @@ const Navbar = () => {
                     About Us
                   </a>
                 </li>
-                <li className="relative group">
+                <li>
                   <a
-                    href="/"
-                    className="hover:text-black text-[#f7e0ab] transition-colors font-medium curvy-subheading flex items-center"
-                    onMouseEnter={() => setProductsDropdownOpen(true)}
-                    onMouseLeave={() => setProductsDropdownOpen(false)}
+                    href="/brochures"
+                    className="hover:text-black text-[#f7e0ab] transition-colors font-medium curvy-subheading"
                   >
-                    Products
-                    <svg
-                      className="w-4 h-4 ml-1"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
+                    Brochures
                   </a>
-                  <div
-                    className={`absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 transition-all duration-300 ${
-                      productsDropdownOpen
-                        ? 'opacity-100 visible'
-                        : 'opacity-0 invisible'
-                    }`}
-                    onMouseEnter={() => setProductsDropdownOpen(true)}
-                    onMouseLeave={() => setProductsDropdownOpen(false)}
-                  >
-                    <a
-                      href="/brochures"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-[#426969] hover:text-white"
-                    >
-                      Brochures
-                    </a>
-                  </div>
                 </li>
                 <li>
                   <a
@@ -146,42 +114,13 @@ const Navbar = () => {
                       </a>
                     </li>
                     <li>
-                      <div className="relative">
-                        <button
-                          className="flex items-center justify-between w-full hover:text-black text-[#f7e0ab] transition-colors font-medium curvy-subheading"
-                          onClick={() =>
-                            setProductsDropdownOpen(!productsDropdownOpen)
-                          }
-                        >
-                          Products
-                          <svg
-                            className={`w-4 h-4 ml-1 transition-transform ${
-                              productsDropdownOpen ? 'rotate-180' : ''
-                            }`}
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M19 9l-7 7-7-7"
-                            />
-                          </svg>
-                        </button>
-                        {productsDropdownOpen && (
-                          <div className="mt-2 ml-4 space-y-2">
-                            <a
-                              href="/brochures"
-                              className="block hover:text-black text-[#f7e0ab] transition-colors font-medium curvy-subheading"
-                              onClick={() => setMenuOpen(false)}
-                            >
-                              Brochures
-                            </a>
-                          </div>
-                        )}
-                      </div>
+                      <a
+                        href="/brochures"
+                        className="hover:text-black text-[#f7e0ab] transition-colors font-medium curvy-subheading"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        Brochures
+                      </a>
                     </li>
                     <li>
                       <a
