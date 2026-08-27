@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation'
 import { client } from '@/sanity/lib/client'
 import BrochureDetailClient from './BrochureDetailClient'
 
+export const revalidate = 60
+
 async function getBrochure(slug) {
   const query = `*[_type == "brochure" && slug.current == $slug][0] {
     _id,

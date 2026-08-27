@@ -2,6 +2,8 @@ import { client } from '../../sanity/lib/client'
 import PostersClient from './PostersClient'
 import imageUrlBuilder from '@sanity/image-url'
 
+export const revalidate = 60
+
 const builder = imageUrlBuilder(client)
 
 function urlFor(source) {

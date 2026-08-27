@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { client } from '@/sanity/lib/client'
 import PageHero from '@/components/PageHero'
 
+export const revalidate = 60
+
 async function getBrochures() {
   const query = `*[_type == "brochure"] | order(title asc) {
     _id,
