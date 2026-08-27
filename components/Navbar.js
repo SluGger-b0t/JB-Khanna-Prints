@@ -44,10 +44,10 @@ const Navbar = () => {
                 </li>
                 <li>
                   <a
-                    href="/brochures"
+                    href="/catalogs"
                     className="hover:text-black text-[#f7e0ab] transition-colors font-medium curvy-subheading"
                   >
-                    Brochures
+                    Catalogs
                   </a>
                 </li>
                 <li>
@@ -115,11 +115,11 @@ const Navbar = () => {
                     </li>
                     <li>
                       <a
-                        href="/brochures"
+                        href="/catalogs"
                         className="hover:text-black text-[#f7e0ab] transition-colors font-medium curvy-subheading"
                         onClick={() => setMenuOpen(false)}
                       >
-                        Brochures
+                        Catalogs
                       </a>
                     </li>
                     <li>

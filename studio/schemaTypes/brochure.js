@@ -1,6 +1,6 @@
 const brochure = {
   name: 'brochure',
-  title: 'Brochure',
+  title: 'Catalog',
   type: 'document',
   fields: [
     {
@@ -14,7 +14,7 @@ const brochure = {
       name: 'slug',
       title: 'Slug',
       type: 'slug',
-      description: 'Used in the page URL, e.g. /brochures/posters-catalog-2026.',
+      description: 'Used in the page URL, e.g. /catalogs/posters-catalog-2026.',
       options: {
         source: 'title',
         maxLength: 60,
@@ -25,7 +25,7 @@ const brochure = {
       name: 'description',
       title: 'Short Description',
       type: 'text',
-      description: 'Optional blurb shown on the Brochures page.',
+      description: 'Optional blurb shown on the Catalogs page.',
     },
     {
       name: 'pdf',
@@ -40,7 +40,7 @@ const brochure = {
       name: 'products',
       title: 'Products Covered',
       type: 'array',
-      description: 'Pick every product this brochure includes.',
+      description: 'Pick every product this catalog includes.',
       of: [{ type: 'reference', to: [{ type: 'product' }] }],
       validation: (Rule) => Rule.min(1),
     },
