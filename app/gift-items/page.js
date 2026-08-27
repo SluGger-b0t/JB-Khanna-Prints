@@ -12,6 +12,7 @@ async function getProducts() {
   const products = await client.fetch(`
     *[_type == "product" && (collection match "gift items" || collection match "Gift Items")] {
       _id,
+      _createdAt,
       name,
       category,
       price,

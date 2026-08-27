@@ -29,7 +29,21 @@ const ThankYouClient = () => {
   return (
     <div className={styles.container}>
       <div className={styles.content}>
-        <div className={styles.icon}>✓</div>
+        <div className={styles.icon}>
+          <svg
+            className="w-8 h-8"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+        </div>
         <h1 className={styles.title}>{message}</h1>
         <p className={styles.message}>{subMessage}</p>
 
@@ -37,7 +51,7 @@ const ThankYouClient = () => {
           {emailStatus === 'error' ? (
             <p>
               If you need help or would like us to resend the email, please{' '}
-              <a href="/contact">contact support</a>.
+              <a href="/#contact-us">contact support</a>.
             </p>
           ) : (
             <>
@@ -50,10 +64,7 @@ const ThankYouClient = () => {
           )}
         </div>
 
-        <button
-          onClick={() => router.push('/product')}
-          className={styles.button}
-        >
+        <button onClick={() => router.push('/')} className={styles.button}>
           Continue Shopping
         </button>
       </div>

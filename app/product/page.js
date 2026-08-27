@@ -12,6 +12,7 @@ async function getProducts() {
   const products = await client.fetch(`
     *[_type == "product"] {
       _id,
+      _createdAt,
       name,
       category,
       price,

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react'
 import styles from './checkout.module.css'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabaseClient' // Import supabase client
+import { getCart, clearCart } from '@/lib/cart'
 
 const CheckoutPage = () => {
   const [cartItems, setCartItems] = useState([])
@@ -35,11 +36,10 @@ const CheckoutPage = () => {
     initializeSession()
 
     // Get cart items
-    const savedCart = localStorage.getItem('cart')
-    if (savedCart) {
-      const parsedCart = JSON.parse(savedCart)
+    const savedCart = getCart()
+    if (savedCart.length > 0) {
       // Ensure each item has the correct image URL
-      const processedCart = parsedCart.map((item) => ({
+      const processedCart = savedCart.map((item) => ({
         ...item,
         image: item.image || item.imageUrl, // Handle both image and imageUrl properties
       }))
@@ -133,7 +133,7 @@ const CheckoutPage = () => {
       }
 
       // Clear cart and redirect
-      localStorage.removeItem('cart')
+      clearCart()
       router.push(`/thank-you?emailStatus=${emailStatus}`)
     } catch (error) {
       console.error('Order submission failed:', error)
@@ -301,7 +301,21 @@ const CheckoutPage = () => {
                 }`}
                 onClick={() => setSelectedPayment('virtual')}
               >
-                <div className={styles.paymentIcon}>🏦</div>
+                <div className={styles.paymentIcon}>
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="1.5"
+                      d="M3 21h18M4 21V9l8-5 8 5v12M9 21v-6h6v6"
+                    />
+                  </svg>
+                </div>
                 <div>
                   <div className={styles.paymentLabel}>Virtual Payment</div>
                   <div className={styles.paymentDesc}>
@@ -315,7 +329,21 @@ const CheckoutPage = () => {
                 }`}
                 onClick={() => setSelectedPayment('cod')}
               >
-                <div className={styles.paymentIcon}>🚚</div>
+                <div className={styles.paymentIcon}>
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="1.5"
+                      d="M3 16V6a1 1 0 011-1h9v11m-10 0h10m-10 0a2 2 0 104 0m6 0a2 2 0 104 0m-4 0h4m0 0h2v-4l-3-4h-3v8z"
+                    />
+                  </svg>
+                </div>
                 <div>
                   <div className={styles.paymentLabel}>Cash on Delivery</div>
                   <div className={styles.paymentDesc}>

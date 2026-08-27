@@ -8,7 +8,7 @@ const Navbar = () => {
   return (
     <div
       id="header-wrap"
-      className="header-wrap fixed top-0 left-0 w-full bg-[#426969] shadow-md z-50"
+      className="header-wrap fixed top-0 left-0 w-full bg-primary-light border-b border-[#f7e0ab]/10 shadow-sm z-50"
     >
       <header id="header" className="py-4">
         <div className="container mx-auto px-4">
@@ -92,6 +92,12 @@ const Navbar = () => {
                     >
                       JBK Premium
                     </a>
+                    <a
+                      href="/brochures"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-[#426969] hover:text-white"
+                    >
+                      Brochures
+                    </a>
                   </div>
                 </li>
                 <li>
@@ -120,17 +126,17 @@ const Navbar = () => {
                 onClick={() => setMenuOpen(!menuOpen)}
               >
                 <span
-                  className={`bar block w-6 h-0.5 my-1 transition-all duration-300 bg-black ${
+                  className={`bar block w-6 h-0.5 my-1 transition-all duration-300 bg-[#f7e0ab] ${
                     menuOpen ? 'rotate-45 translate-y-2' : ''
                   }`}
                 ></span>
                 <span
-                  className={`bar block w-6 h-0.5 my-1 transition-all duration-300 bg-black ${
+                  className={`bar block w-6 h-0.5 my-1 transition-all duration-300 bg-[#f7e0ab] ${
                     menuOpen ? 'opacity-0' : ''
                   }`}
                 ></span>
                 <span
-                  className={`bar block w-6 h-0.5 my-1 transition-all duration-300 bg-black ${
+                  className={`bar block w-6 h-0.5 my-1 transition-all duration-300 bg-[#f7e0ab] ${
                     menuOpen ? '-rotate-45 -translate-y-2' : ''
                   }`}
                 ></span>
@@ -204,6 +210,13 @@ const Navbar = () => {
                               onClick={() => setMenuOpen(false)}
                             >
                               JBK premium
+                            </a>
+                            <a
+                              href="/brochures"
+                              className="block hover:text-black text-[#f7e0ab] transition-colors font-medium curvy-subheading"
+                              onClick={() => setMenuOpen(false)}
+                            >
+                              Brochures
                             </a>
                           </div>
                         )}

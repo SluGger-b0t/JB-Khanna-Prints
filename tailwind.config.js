@@ -9,7 +9,9 @@ export default {
     extend: {
       colors: {
         primary: '#2f4f4f',
+        'primary-light': '#426969',
         secondary: '#f7e0ab',
+        cream: '#faf7f2',
       },
       fontFamily: {
         quicksand: ['Quicksand', 'sans-serif'],
