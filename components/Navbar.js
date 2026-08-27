@@ -75,24 +75,6 @@ const Navbar = () => {
                     onMouseLeave={() => setProductsDropdownOpen(false)}
                   >
                     <a
-                      href="/posters"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-[#426969] hover:text-white"
-                    >
-                      Posters
-                    </a>
-                    <a
-                      href="/gift-items"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-[#426969] hover:text-white"
-                    >
-                      Gift Items
-                    </a>
-                    <a
-                      href="/premium"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-[#426969] hover:text-white"
-                    >
-                      JBK Premium
-                    </a>
-                    <a
                       href="/brochures"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-[#426969] hover:text-white"
                     >
@@ -190,27 +172,6 @@ const Navbar = () => {
                         </button>
                         {productsDropdownOpen && (
                           <div className="mt-2 ml-4 space-y-2">
-                            <a
-                              href="/posters"
-                              className="block hover:text-black text-[#f7e0ab] transition-colors font-medium curvy-subheading"
-                              onClick={() => setMenuOpen(false)}
-                            >
-                              Posters
-                            </a>
-                            <a
-                              href="/gift-items"
-                              className="block hover:text-black text-[#f7e0ab] transition-colors font-medium curvy-subheading"
-                              onClick={() => setMenuOpen(false)}
-                            >
-                              Gift Items
-                            </a>
-                            <a
-                              href="/premium"
-                              className="block hover:text-black text-[#f7e0ab] transition-colors font-medium curvy-subheading"
-                              onClick={() => setMenuOpen(false)}
-                            >
-                              JBK premium
-                            </a>
                             <a
                               href="/brochures"
                               className="block hover:text-black text-[#f7e0ab] transition-colors font-medium curvy-subheading"
